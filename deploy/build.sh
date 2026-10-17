@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 source_dir="$(pwd -P)"
-version="global-$(git rev-parse --short=7 HEAD)"
+version="redex-$(git rev-parse --short=7 HEAD)"
 
 # A container avoids host native-addon cache permission issues on ARM64.
 docker run --rm --name redex-web-build \

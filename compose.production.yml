@@ -21,7 +21,7 @@ services:
         max-file: "3"
 
   redex:
-    image: redex-global:777c41c
+    image: redex-global:0a85777
     build:
       context: .
     depends_on:
@@ -54,4 +54,5 @@ services:
 
 volumes:
   pgdata:
+    external: true
     name: artex_pgdata

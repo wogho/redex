@@ -5,7 +5,7 @@ Source: https://github.com/wogho/artex-ko.git
 Runtime mode: `REDEX_MODE=offensive` (gate bypass + exploit-first prompts).
 Image built locally with `docker compose build`; this fork publishes no container image.
 
-Installed source revision: `777c41c` (branch `offensive`, built from commit above).
+Installed source revision: see `git log -1` on branch `redex`; the container tag matches the short commit hash.
 The UI and Go binary are compiled from this revision for Linux ARM64.
 The web UI is built with `NEXT_PUBLIC_LOCALE=ko` (Korean default, switchable to en/zh/es/ja in Settings).
 The upstream runtime tools and Playwright Chromium are included in the image.

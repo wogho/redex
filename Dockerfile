@@ -98,14 +98,22 @@ RUN mkdir -p /opt/wordlists && cd /opt/wordlists \
     && tar -xzf /tmp/rockyou.tar.gz -C /opt/wordlists && rm -f /tmp/rockyou.tar.gz \
     && ls -lh /opt/wordlists
 
-# 빌드 시 도구 동작 확인(하나라도 깨지면 이미지 빌드가 실패한다).
+# impacket 은 pip 설치 시 콘솔 스크립트를 만들지 않으므로, 자주 쓰는 예제를
+# `impacket-<name>` 래퍼로 노출한다(에이전트가 짧은 이름으로 호출할 수 있게).
 RUN set -eux; \
-    smbclient --version; ldapsearch -VV 2>&1 | head -1; \
-    hashcat --version; john --help >/dev/null 2>&1; \
-    psql --version; mysql --version; redis-cli --version; aws --version; \
-    arjun --help >/dev/null 2>&1 || true; certipy --help >/dev/null 2>&1 || true; \
-    ldapdomaindump --help >/dev/null 2>&1 || true; bloodhound-python --help >/dev/null 2>&1 || true; \
-    jwt_tool 2>&1 | head -3 || true; kerbrute 2>&1 | head -2 || true
+    for t in secretsdump psexec wmiexec smbexec atexec GetNPUsers GetUserSPNs ntlmrelayx smbclient lookupsid; do \
+      printf '#!/bin/sh\nexec python3 -m impacket.examples.%s "$@"\n' "$t" > /usr/local/bin/impacket-$t; \
+      chmod +x /usr/local/bin/impacket-$t; \
+    done; \
+    impacket-secretsdump --help >/dev/null 2>&1 || true
+
+# 빌드 시 도구 존재 확인(하나라도 없으면 이미지 빌드가 실패한다).
+RUN set -eux; \
+    for b in smbclient rpcclient ldapsearch hashcat john psql mysql redis-cli aws \
+             arjun certipy ldapdomaindump bloodhound-python jwt_tool kerbrute \
+             ffuf nuclei subfinder chisel nikto sqlmap hydra masscan whatweb gobuster impacket-secretsdump; do \
+      command -v "$b"; \
+    done
 
 WORKDIR /app
 # 미리 컴파일한 해당 아키텍처 바이너리(dist/amd64/redex 또는 dist/arm64/redex)
