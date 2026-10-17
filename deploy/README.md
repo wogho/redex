@@ -1,6 +1,6 @@
 # ARTEX deployment: artex.noog2infra.site
 
-Source: https://github.com/wogho/artex-ko.git
+Source: https://github.com/wogho/redex.git
 
 Runtime mode: `REDEX_MODE=offensive` (gate bypass + exploit-first prompts).
 Image built locally with `docker compose build`; this fork publishes no container image.
