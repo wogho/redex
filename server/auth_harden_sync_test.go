@@ -116,7 +116,7 @@ func TestBootstrapAuthSkipsFirstRunWhenDataSourceUnavailable(t *testing.T) {
 	}
 }
 
-// ARTEX_ADMIN_PASSWORD 초기화도 최초 1회만 써야 한다: 다른 값으로 기동한 두 번째 인스턴스가
+// REDEX_ADMIN_PASSWORD 초기화도 최초 1회만 써야 한다: 다른 값으로 기동한 두 번째 인스턴스가
 // 기존 비밀번호를 덮어쓰면 안 된다.
 func TestBootstrapAdminPasswordEnvDoesNotOverwriteDB(t *testing.T) {
 	rig := newAuthTestRig(t)

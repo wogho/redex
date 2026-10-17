@@ -10,7 +10,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/wogho/redex/db"
 )
 
 // 첫 실행 관리자 계정 선점 제보(/api/auth/init 무인증 호출)의 수정을 실제 DB 로 끝까지
@@ -139,11 +139,11 @@ func TestAuthInitRequiresSetupTokenDB(t *testing.T) {
 	rig.expect(403, code, body, authErrPasswordAlreadySet)
 
 	// 로그인: 사용자 이름·비밀번호 모두 맞아야 한다.
-	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "ARTEX", "password": "wrong-pass-123"})
+	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "Redex", "password": "wrong-pass-123"})
 	rig.expect(401, code, body, authErrBadCredential)
 	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "admin", "password": "operator-pass-123"})
 	rig.expect(401, code, body, authErrBadCredential)
-	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "ARTEX", "password": "operator-pass-123"})
+	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "Redex", "password": "operator-pass-123"})
 	rig.expect(200, code, body, "")
 	tok2, _ := body["token"].(string)
 	code, body = rig.do(http.MethodGet, "/api/ping", tok2, nil)
@@ -186,9 +186,9 @@ func TestAuthInitRequiresSetupTokenDB(t *testing.T) {
 	t.Cleanup(func() { passHashCacheTTL = prevTTL })
 	code, body = rig.do(http.MethodGet, "/api/ping", tok3, nil)
 	rig.expect(401, code, body, authErrTokenInvalid)
-	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "ARTEX", "password": "changed-pass-123"})
+	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "Redex", "password": "changed-pass-123"})
 	rig.expect(401, code, body, authErrBadCredential)
-	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "ARTEX", "password": "reset-pass-123"})
+	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "Redex", "password": "reset-pass-123"})
 	rig.expect(200, code, body, "")
 	tok4, _ := body["token"].(string)
 	code, body = rig.do(http.MethodGet, "/api/ping", tok4, nil)
@@ -206,16 +206,16 @@ func TestAuthLoginThrottledDB(t *testing.T) {
 	}
 	rig.s.bootstrapAuth()
 	for i := 0; i < authFreeFailures; i++ {
-		code, body := rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "ARTEX", "password": "brute-force-attempt"})
+		code, body := rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "Redex", "password": "brute-force-attempt"})
 		rig.expect(401, code, body, authErrBadCredential)
 	}
-	code, body := rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "ARTEX", "password": "operator-pass-123"})
+	code, body := rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "Redex", "password": "operator-pass-123"})
 	rig.expect(429, code, body, authErrTooManyAttempts)
 	if _, has := body["token"]; has {
 		t.Fatal("냉각 중에는 올바른 비밀번호라도 토큰을 주면 안 됩니다")
 	}
 	rig.s.limiter().reset(clientKey(httptest.NewRequest(http.MethodPost, "/api/auth/login", nil)))
-	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "ARTEX", "password": "operator-pass-123"})
+	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "Redex", "password": "operator-pass-123"})
 	rig.expect(200, code, body, "")
 }
 
@@ -230,7 +230,7 @@ func TestAuthBootstrapAdminPasswordEnvDB(t *testing.T) {
 	}
 	code, body = rig.do(http.MethodPost, "/api/auth/init", "", map[string]any{"password": "attacker-set-password-123!", "setup_token": rig.s.currentSetupToken()})
 	rig.expect(403, code, body, authErrPasswordAlreadySet)
-	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "ARTEX", "password": "env-admin-pass-123"})
+	code, body = rig.do(http.MethodPost, "/api/auth/login", "", map[string]any{"username": "Redex", "password": "env-admin-pass-123"})
 	rig.expect(200, code, body, "")
 	tok, _ := body["token"].(string)
 	code, body = rig.do(http.MethodGet, "/api/ping", tok, nil)

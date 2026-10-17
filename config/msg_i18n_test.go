@@ -8,36 +8,36 @@ import (
 )
 
 // TestStartupMessageSwitchesLanguage pins that the DB-config startup error and
-// source labels follow ARTEX_LANG: English by default, Korean/Chinese/Spanish/Japanese
+// source labels follow REDEX_LANG: English by default, Korean/Chinese/Spanish/Japanese
 // when configured. Identifiers an operator must act on stay verbatim.
 func TestStartupMessageSwitchesLanguage(t *testing.T) {
 	dir := t.TempDir()
-	t.Setenv("ARTEX_PG_DSN", "")
-	t.Setenv("ARTEX_CONFIG", filepath.Join(dir, "nope.json"))
+	t.Setenv("REDEX_PG_DSN", "")
+	t.Setenv("REDEX_CONFIG", filepath.Join(dir, "nope.json"))
 
-	// Default (no ARTEX_LANG) → English (artex-global default).
-	t.Setenv("ARTEX_LANG", "")
+	// Default (no REDEX_LANG) → English (redex-global default).
+	t.Setenv("REDEX_LANG", "")
 	def := mustDSNErr(t)
 	if hasHangul(def) {
 		t.Errorf("default startup error should have no Hangul (English default): %q", def)
 	}
-	for _, id := range []string{"ARTEX_PG_DSN", "database", "dsn", "host/user/dbname"} {
+	for _, id := range []string{"REDEX_PG_DSN", "database", "dsn", "host/user/dbname"} {
 		if !containsStr(def, id) {
 			t.Errorf("default startup error must keep identifier %q: %q", id, def)
 		}
 	}
 
 	// Explicit Korean → Korean.
-	t.Setenv("ARTEX_LANG", "ko")
+	t.Setenv("REDEX_LANG", "ko")
 	assertKorean(t, "ko startup error", mustDSNErr(t))
 
 	// English → no Hangul, keeps identifiers.
-	t.Setenv("ARTEX_LANG", "en")
+	t.Setenv("REDEX_LANG", "en")
 	en := mustDSNErr(t)
 	if hasHangul(en) {
 		t.Errorf("en startup error should have no Hangul: %q", en)
 	}
-	for _, id := range []string{"ARTEX_PG_DSN", "database", "dsn", "host/user/dbname"} {
+	for _, id := range []string{"REDEX_PG_DSN", "database", "dsn", "host/user/dbname"} {
 		if !containsStr(en, id) {
 			t.Errorf("en startup error must keep identifier %q: %q", id, en)
 		}
@@ -45,7 +45,7 @@ func TestStartupMessageSwitchesLanguage(t *testing.T) {
 
 	// Chinese / Spanish / Japanese → non-empty and different from the Korean source.
 	for _, lang := range []string{"zh", "es", "ja"} {
-		t.Setenv("ARTEX_LANG", lang)
+		t.Setenv("REDEX_LANG", lang)
 		if got := mustDSNErr(t); got == "" {
 			t.Errorf("%s startup error should be non-empty", lang)
 		}

@@ -5,7 +5,7 @@
 이 폴더에는 서로 다른 두 화면 모음이 들어 있습니다. 섞여 보이지 않도록 어느 쪽이
 무엇인지 먼저 밝힙니다.
 
-- **`en/`: 기본값인 영어 UI 를 캡처한 ARTEX 의 실제 화면.** 이 저장소가 전달하는 결과물입니다.
+- **`en/`: 기본값인 영어 UI 를 캡처한 Redex 의 실제 화면.** 이 저장소가 전달하는 결과물입니다.
   메인 문서 [`../README.md`](../README.md) 와 [`../README.ko.md`](../README.ko.md) 가
   이 이미지를 씁니다. 전달용 영어 화면만 보시려면 [`en/`](en/) 폴더를 여세요.
 - **루트의 `*.png`: 상류 원본(중국어판)의 UI 캡처.** 상류 저장소와 1:1 로 대조할 수
@@ -27,7 +27,7 @@
 This folder holds two separate sets of captures. To keep them from looking mixed, here
 is what each one is.
 
-- **`en/` — real UI of ARTEX in the default English display language.** This is what the fork delivers. The
+- **`en/` — real UI of Redex in the default English display language.** This is what the fork delivers. The
   main docs [`../README.md`](../README.md) and [`../README.ko.md`](../README.ko.md) use
   these images. For the delivered screens, open [`en/`](en/).
 - **The `*.png` files in the root — upstream (Chinese edition) UI captures.** They are

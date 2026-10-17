@@ -14,12 +14,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Autumn-27/artex/agent"
-	pgdb "github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/enrich"
-	"github.com/Autumn-27/artex/guard"
-	"github.com/Autumn-27/artex/intercept"
-	"github.com/Autumn-27/artex/traffic"
+	"github.com/wogho/redex/agent"
+	pgdb "github.com/wogho/redex/db"
+	"github.com/wogho/redex/enrich"
+	"github.com/wogho/redex/guard"
+	"github.com/wogho/redex/intercept"
+	"github.com/wogho/redex/traffic"
 	actool "github.com/Autumn-27/norma/tool"
 )
 
@@ -276,7 +276,7 @@ const (
 	// 每 run 读一次,切换只影响之后启动的 run。
 	settingNoaCompaction = "noa_compaction"
 	// settingOutputLanguage 는 사용자 대면 출력 언어("en"/"ko"/"zh"/"es")의 런타임 값이다.
-	// 비어 있으면 config.Language()(ARTEX_LANG·설정 파일·기본값 한국어)로 떨어진다. 에이전트
+	// 비어 있으면 config.Language()(REDEX_LANG·설정 파일·기본값 한국어)로 떨어진다. 에이전트
 	// 출력 언어(langDirective)와 백엔드 메시지 카탈로그가 모두 이 값을 따른다.
 	settingOutputLanguage = "output_language"
 	// defaultWebSearchBackend is used when web search is on but no backend was picked.

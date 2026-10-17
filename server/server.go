@@ -20,21 +20,21 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/config"
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/intercept"
-	"github.com/Autumn-27/artex/llmpool"
-	"github.com/Autumn-27/artex/llmrec"
-	"github.com/Autumn-27/artex/notify"
-	"github.com/Autumn-27/artex/report"
-	"github.com/Autumn-27/artex/traffic"
+	"github.com/wogho/redex/agent"
+	"github.com/wogho/redex/config"
+	"github.com/wogho/redex/db"
+	"github.com/wogho/redex/intercept"
+	"github.com/wogho/redex/llmpool"
+	"github.com/wogho/redex/llmrec"
+	"github.com/wogho/redex/notify"
+	"github.com/wogho/redex/report"
+	"github.com/wogho/redex/traffic"
 	"github.com/Autumn-27/norma/llm"
 	actool "github.com/Autumn-27/norma/tool"
 	"github.com/Autumn-27/norma/transcript"
 )
 
-// BuildVersion is the backend application version, injected from cmd/artex at
+// BuildVersion is the backend application version, injected from cmd/redex at
 // startup (which in turn gets it from -ldflags "-X main.version=<tag>").
 // Defaults to "dev" for local builds. Exposed to the frontend via GET /api/health.
 var BuildVersion = "dev"
@@ -106,7 +106,7 @@ const (
 	fallbackChatStatus     = "(규칙 모드, LLM 미설정) 현재 현황: 자산 %d개, 대기 의도 %d개, 확인된 취약점 %d개.\n사용 가능한 명령: \"의도 ...\"로 의도를 주입하고, \"힌트 ...\"로 플래너에게 힌트를 전달합니다."
 )
 
-// Server exposes the ARTEX backend over a JSON HTTP API for the shadcn/ui
+// Server exposes the Redex backend over a JSON HTTP API for the shadcn/ui
 // frontend.
 type Server struct {
 	m      *Manager
@@ -237,7 +237,7 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 		provByProfile:  map[int64]*provEntry{}, llmHealth: newLLMHealthRegistry(m.pg),
 		taskAgents: map[string]*taskAgentBundle{}, archiveWake: make(chan struct{}, 1)}
 	// First-run protection: cache the password hash and, while none is set, issue
-	// the console setup token (or apply ARTEX_ADMIN_PASSWORD) before any request.
+	// the console setup token (or apply REDEX_ADMIN_PASSWORD) before any request.
 	s.bootstrapAuth()
 	s.initSideQuestions()
 	// 熔断阈值/冷却是失败路径上的热参数，启动时把全局重试策略推给 Registry 一次；
@@ -307,7 +307,7 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 		}
 		// Wire the user-facing output language. Precedence: the runtime setting a
 		// user picked in the UI (settings table) over the bootstrap default
-		// (config.Language() = ARTEX_LANG > config file > "ko"). Resolved once
+		// (config.Language() = REDEX_LANG > config file > "ko"). Resolved once
 		// here and cached in s.outputLang; putSettings refreshes the cache, so a
 		// language change in the UI applies to the next agent turn without a
 		// restart. Both agent.OutputLanguage (langDirective + wrap-up
@@ -1055,7 +1055,7 @@ func (s *Server) Handler() http.Handler {
 // --- handlers ---
 
 func (s *Server) health(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, 200, map[string]any{"ok": true, "service": "artex", "version": BuildVersion})
+	writeJSON(w, 200, map[string]any{"ok": true, "service": "redex", "version": BuildVersion})
 }
 
 func (s *Server) stats(w http.ResponseWriter, r *http.Request) {
@@ -2248,7 +2248,7 @@ func (s *Server) findingsExport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stage, err := os.MkdirTemp("", "artex-finding-export-")
+	stage, err := os.MkdirTemp("", "redex-finding-export-")
 	if err != nil {
 		writeErr(w, 500, err.Error())
 		return
@@ -3399,7 +3399,7 @@ func (s *Server) settingsPayload() map[string]any {
 	if concLimit == 0 {
 		concLimit = defaultConcurrencyLimit // 关闭时也回显一个合理默认值给 UI
 	}
-	// 사용자 대면 출력 언어: 런타임 설정값 > config.Language() 기본값(ARTEX_LANG·설정 파일·한국어).
+	// 사용자 대면 출력 언어: 런타임 설정값 > config.Language() 기본값(REDEX_LANG·설정 파일·한국어).
 	outputLang := s.outputLanguage()
 	return map[string]any{
 		"output_language":          outputLang, // 사용자 대면 출력 언어(en/ko/zh/es/ja)
@@ -4025,7 +4025,7 @@ func (s *Server) gc(w http.ResponseWriter, r *http.Request) {
 // (comma-separated, e.g. "https://ui.example.com"; "*" restores the old
 // allow-everything behaviour). The embedded UI is same-origin and needs none of
 // this; the default only covers `next dev` from dev.sh.
-const corsOriginsEnv = "ARTEX_CORS_ORIGINS"
+const corsOriginsEnv = "REDEX_CORS_ORIGINS"
 
 var defaultCORSOrigins = []string{"http://localhost:5173", "http://127.0.0.1:5173"}
 

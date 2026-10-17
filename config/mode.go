@@ -7,11 +7,11 @@ import (
 
 // ModeEnv selects the runtime operating mode.
 //
-//	ARTEX_MODE=offensive → intercept 승인 게이트를 끄고, 모든 펜테스트 에이전트
+//	REDEX_MODE=offensive → intercept 승인 게이트를 끄고, 모든 펜테스트 에이전트
 //	프롬프트에 공격(익스플로잇) 우선 지시문을 코드로 고정 주입한다.
 //
 // 비어 있거나 다른 값이면 상류 기본 동작(정찰·검증 중심 + 승인 게이트)을 유지한다.
-const ModeEnv = "ARTEX_MODE"
+const ModeEnv = "REDEX_MODE"
 
 // Offensive reports whether the process runs in offensive mode.
 //

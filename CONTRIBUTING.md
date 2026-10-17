@@ -2,11 +2,11 @@
 
 한국어 · [English](CONTRIBUTING.en.md)
 
-ARTEX 글로벌판(`artex-global`)에 관심을 가져 주셔서 고맙습니다. 이 문서는 기여를 시작하기 전에
+Redex 글로벌판(`redex-global`)에 관심을 가져 주셔서 고맙습니다. 이 문서는 기여를 시작하기 전에
 알아 두어야 할 범위·방침·절차를 한국어로 정리한 것입니다. 기여를 보내기 전에 반드시
 [사용 범위와 법적 책임](#사용-범위와-법적-책임)과 [현지화 방침](#현지화-방침)을 먼저 읽어 주십시오.
 
-- 버그를 신고하거나 기능을 제안하려면 → [이슈 템플릿](https://github.com/jiwoochris/artex-global/issues/new/choose)을 사용하십시오.
+- 버그를 신고하거나 기능을 제안하려면 → [이슈 템플릿](https://github.com/jiwoochris/redex-global/issues/new/choose)을 사용하십시오.
 - 번역·현지화 오류를 발견했다면 → "번역·현지화 오류" 이슈 템플릿을 사용하십시오.
 - 보안 취약점을 발견했다면 → **공개 이슈로 올리지 말고** [SECURITY.md](SECURITY.md)의 절차를 따라 주십시오.
 - 모든 참여자는 [행동 강령(CODE_OF_CONDUCT.md)](CODE_OF_CONDUCT.md)을 지켜야 합니다.
@@ -15,7 +15,7 @@ ARTEX 글로벌판(`artex-global`)에 관심을 가져 주셔서 고맙습니다
 
 ## 사용 범위와 법적 책임
 
-ARTEX 는 LLM 멀티 에이전트가 **자율적으로** 침투 테스트를 수행하는 공격 보안 도구입니다.
+Redex 는 LLM 멀티 에이전트가 **자율적으로** 침투 테스트를 수행하는 공격 보안 도구입니다.
 기여자도 사용자와 똑같은 범위 제한을 받습니다.
 
 - 코드를 검증할 때는 **자신이 소유했거나 서면으로 명시적 허가를 받은 대상**, 또는
@@ -34,7 +34,7 @@ ARTEX 는 LLM 멀티 에이전트가 **자율적으로** 침투 테스트를 수
 
 ## 현지화 방침
 
-이 저장소의 존재 이유는 원본 [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX)(현재 접속 불가, 2026-10 확인)의
+이 저장소의 존재 이유는 원본 [Autumn-27/Redex](https://github.com/Autumn-27/Redex)(현재 접속 불가, 2026-10 확인)의
 **판단 성능을 그대로 보존하면서 사용자에게 보이는 산출물만 설정한 언어로 바꾸는 것**입니다.
 이 방침을 벗어나는 번역 기여는 성능을 떨어뜨릴 수 있으므로 받지 않습니다.
 
@@ -57,7 +57,7 @@ ARTEX 는 LLM 멀티 에이전트가 **자율적으로** 침투 테스트를 수
   저가·소형 모델은 리포트·요약이 원문(중국어)으로 되돌아갈 수 있으므로, 번역이 제대로 적용됐는지를
   저가 모델의 출력만으로 판단하지 마십시오. OpenAI 계열 모델을 쓸 때의 `max_tokens` 설정 함정은
   [README 의 "모델 선택과 출력 언어" 절](README.ko.md#모델-선택과-출력-언어)에 정리되어 있습니다.
-- **상류(upstream) 변경을 따라잡는 절차는 메인테이너 안내 문서에 있습니다.** 원본 ARTEX 가
+- **상류(upstream) 변경을 따라잡는 절차는 메인테이너 안내 문서에 있습니다.** 원본 Redex 가
   갱신됐을 때 보존 자산과 번역 대상을 가려서 반영하고, 번역 대칭과 드리프트를 검사하는 런북은
   [MAINTAINING.md](MAINTAINING.md)에 정리되어 있습니다.
 
@@ -94,7 +94,7 @@ go test ./agent/
 
 ```bash
 docker run --rm -v "$PWD":/src -w /src \
-  -v artexko-gomod:/go/pkg/mod -v artexko-gocache:/root/.cache/go-build \
+  -v redexko-gomod:/go/pkg/mod -v redexko-gocache:/root/.cache/go-build \
   golang:1.26 sh -c 'go build ./... && go vet ./agent/ && go test ./agent/'
 ```
 
@@ -102,32 +102,32 @@ docker run --rm -v "$PWD":/src -w /src \
 
 위의 `go test ./agent/` 는 PostgreSQL 에 붙어야 도는 **DB 통합 테스트를 조용히
 건너뜁니다.** `agent`·`config`·`db`·`evidence`·`llmrec`·`server` 여섯 패키지에는 실제
-데이터베이스가 있어야 도는 테스트가 들어 있는데, 환경 변수 `ARTEX_PG_DSN` 도 없고 설정
+데이터베이스가 있어야 도는 테스트가 들어 있는데, 환경 변수 `REDEX_PG_DSN` 도 없고 설정
 파일에도 `database` 항목이 없으면 그 테스트들은 `--- SKIP` 으로 넘어가고 패키지는 `ok` 로
 끝납니다. 그래서 이 여섯 패키지를 고친 뒤 DSN 없이 검증하면 **로컬은 통과(ok)하는데 PR 의
 `go-db` 작업은 실패**할 수 있습니다.
 
-이 테스트들을 로컬에서 돌리려면 PostgreSQL 을 띄우고 `ARTEX_PG_DSN` 을 건넵니다. 아래는
+이 테스트들을 로컬에서 돌리려면 PostgreSQL 을 띄우고 `REDEX_PG_DSN` 을 건넵니다. 아래는
 CI 와 같은 `postgres:16-alpine` 을 격리 네트워크에 띄워 돌리는 예시이며, 위와 같은 named
 volume 을 재사용합니다.
 
 ```bash
 # 1) 격리 네트워크와 빈 postgres 를 띄웁니다 (CI 와 같은 이미지·계정).
-docker network create artexko-db 2>/dev/null || true
-docker run -d --name artexko-pg --network artexko-db \
-  -e POSTGRES_USER=artex -e POSTGRES_PASSWORD=artex -e POSTGRES_DB=artex \
+docker network create redexko-db 2>/dev/null || true
+docker run -d --name redexko-pg --network redexko-db \
+  -e POSTGRES_USER=redex -e POSTGRES_PASSWORD=redex -e POSTGRES_DB=redex \
   postgres:16-alpine
-until docker exec artexko-pg pg_isready -U artex -d artex >/dev/null 2>&1; do sleep 1; done
+until docker exec redexko-pg pg_isready -U redex -d redex >/dev/null 2>&1; do sleep 1; done
 
 # 2) DSN 을 건네 DB 통합 패키지를 돌립니다 (DSN 의 host 는 컨테이너 이름입니다).
 #    고친 패키지만 돌리려면 ./agent/ 자리를 config·db·evidence·llmrec·server 로 바꿉니다.
-docker run --rm --network artexko-db -v "$PWD":/src -w /src \
-  -v artexko-gomod:/go/pkg/mod -v artexko-gocache:/root/.cache/go-build \
-  -e ARTEX_PG_DSN='postgres://artex:artex@artexko-pg:5432/artex?sslmode=disable' \
+docker run --rm --network redexko-db -v "$PWD":/src -w /src \
+  -v redexko-gomod:/go/pkg/mod -v redexko-gocache:/root/.cache/go-build \
+  -e REDEX_PG_DSN='postgres://redex:redex@redexko-pg:5432/redex?sslmode=disable' \
   golang:1.26 sh -c 'go test ./agent/ -count=1'
 
 # 3) 정리합니다.
-docker rm -f artexko-pg && docker network rm artexko-db
+docker rm -f redexko-pg && docker network rm redexko-db
 ```
 
 CI 의 `go-db` 작업은 이 여섯 패키지를 **각각 자체 postgres 로 격리해** 머지 전에 강제로
@@ -153,7 +153,7 @@ npm run check:fix    # 자동 수정
 
 ```bash
 docker run --rm -v "$PWD":/src -w /src/web \
-  -v artexko-web-nm:/src/web/node_modules \
+  -v redexko-web-nm:/src/web/node_modules \
   node:22 bash -c 'npm ci && npm run build:static'
 ```
 
@@ -164,7 +164,7 @@ docker run --rm -v "$PWD":/src -w /src/web \
 
 ```bash
 cp .env.example .env     # POSTGRES_PASSWORD 설정
-docker compose up -d     # artex + postgres 기동 → http://localhost:8787
+docker compose up -d     # redex + postgres 기동 → http://localhost:8787
 ```
 
 ---
@@ -214,7 +214,7 @@ i18n(web): 대시보드 네비게이션 라벨 한국어 번역
 
 ## 탐지 규칙·탐지 테스트 기여
 
-이 저장소는 ARTEX 같은 자율 AI 공격을 **방어·탐지**하기 위한 규칙을 [`detections/`](detections/)에 함께
+이 저장소는 Redex 같은 자율 AI 공격을 **방어·탐지**하기 위한 규칙을 [`detections/`](detections/)에 함께
 둡니다. 배포 가능한 [Sigma](https://sigmahq.io) 규칙([`detections/sigma/`](detections/sigma/)), 네트워크용
 [Suricata](https://suricata.io) 규칙([`detections/suricata/`](detections/suricata/)),
 [MITRE ATT&CK](https://attack.mitre.org/) 커버리지 레이어([`detections/attack/`](detections/attack/)), 그리고
@@ -224,16 +224,16 @@ i18n(web): 대시보드 네비게이션 라벨 한국어 번역
 
 - **모든 지표를 관측 가능한 사실에 접지합니다.** 규칙이 쓰는 문자열·User-Agent·행동 임계값은 이 저장소
   소스에서 실제로 확인되는 것이어야 하고, 추정으로 만들지 않습니다. 근거가 되는 소스 파일을 규칙 안에
-  밝혀 주십시오(예: `artex-enrich/1.0` 지표는 `enrich/enrich.go` 에서 확인됩니다). 지표 일치 테스트
+  밝혀 주십시오(예: `redex-enrich/1.0` 지표는 `enrich/enrich.go` 에서 확인됩니다). 지표 일치 테스트
   ([`detections/tests/indicators/`](detections/tests/indicators/))가 각 지표가 상류 소스와 규칙 양쪽에
   여전히 있는지 검사하므로, 상류 재동기화로 소스 문자열이 바뀌면 규칙을 함께 고치지 않는 한 테스트가 실패합니다.
-  기계 판독 지표 목록([`detections/indicators/artex_indicators.csv`](detections/indicators/artex_indicators.csv))을
-  바꾸면, 그 지표를 그대로 담은 MISP 이벤트([`detections/indicators/artex_indicators.misp.json`](detections/indicators/artex_indicators.misp.json))도
+  기계 판독 지표 목록([`detections/indicators/redex_indicators.csv`](detections/indicators/redex_indicators.csv))을
+  바꾸면, 그 지표를 그대로 담은 MISP 이벤트([`detections/indicators/redex_indicators.misp.json`](detections/indicators/redex_indicators.misp.json))도
   함께 갱신합니다. MISP 내보내기 테스트([`detections/tests/misp/`](detections/tests/misp/))가 두 파일이 행
   단위로 일치하는지, 그리고 그 이벤트가 pymisp 로 적재되는 유효한 MISP 문서인지 강제합니다.
 - **한계를 정직하게 적습니다.** Sigma 규칙은 `description` 에, Suricata 규칙은 주석에 그 규칙이 못 잡는
-  경우와 오탐 가능성을 적습니다. ARTEX 고유 시그니처가 아니라 일반 헌팅 리드(예: 파괴 명령)라면 그렇게
-  명시해, 한 번의 적중만으로 공격자를 ARTEX 로 단정하지 않게 합니다.
+  경우와 오탐 가능성을 적습니다. Redex 고유 시그니처가 아니라 일반 헌팅 리드(예: 파괴 명령)라면 그렇게
+  명시해, 한 번의 적중만으로 공격자를 Redex 로 단정하지 않게 합니다.
 - **정적 검증을 통과시킵니다.** Sigma 규칙은 SigmaHQ 검증기 기준을 이슈 0 으로 통과해야 합니다
   (`sigma check --validation-config detections/tests/sigma_lint/validators.yml`). 기본 `sigma check` 는
   pySigma 핵심 검증기만 돌리므로, 제목 표기·필드/로그소스 분류·참조 링크 같은 SigmaHQ 관례는 이 기준으로만
@@ -248,7 +248,7 @@ i18n(web): 대시보드 네비게이션 라벨 한국어 번역
   백엔드에서 변환되는지 확인하므로, [`detections/README.md`](detections/README.md) 의 백엔드 지원 설명과
   어긋나지 않게 유지해 주십시오.
 - **ATT&CK 레이어를 함께 갱신합니다.** 규칙에 `attack.*` 태그를 더하거나 바꾸면
-  [`detections/attack/artex_navigator_layer.json`](detections/attack/artex_navigator_layer.json) 의 기법·점수도
+  [`detections/attack/redex_navigator_layer.json`](detections/attack/redex_navigator_layer.json) 의 기법·점수도
   맞춰 갱신합니다. 정합 테스트가 규칙↔레이어 양방향 일치를 강제하므로, 레이어에 없는 규칙 태그나 규칙에
   없는 레이어 기법이 있으면 실패합니다.
 - **공격 안내로 읽히는 내용을 넣지 않습니다.** 이 저장소의 탐지 자료는 방어·탐지 포지셔닝만 유지합니다.
@@ -278,7 +278,7 @@ pre-commit install` 로 설치하면, 탐지 규칙이나 그 규칙이 고정�
 
 이 여덟 테스트는 저장소 CI([`.github/workflows/detections.yml`](.github/workflows/detections.yml))가
 `detections/` 아래가 바뀐 푸시·PR 마다 돌립니다. 지표 일치 테스트는 그 지표가 가리키는 상류 소스 파일
-(`enrich/`·`selfupdate/`·`guard/`·`db/`·`cmd/artex/main.go`)이 바뀔 때도 돌아, 상류 재동기화가 User-Agent·
+(`enrich/`·`selfupdate/`·`guard/`·`db/`·`cmd/redex/main.go`)이 바뀔 때도 돌아, 상류 재동기화가 User-Agent·
 마커·기본 포트를 바꿔 규칙이 조용히 낡는 경우를 함께 잡습니다. 따라서 규칙만 바꾸고 테스트·레이어를 갱신하지 않은 변경, SigmaHQ 관례를
 깨뜨린 규칙, 또는 소스와 어긋난 규칙은 머지 전에 CI 에서 빨갛게 드러납니다.
 

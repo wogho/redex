@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/wogho/redex/db"
 )
 
 // TestChatUnavailableReasonDistinguishesStates pins the operator-facing message

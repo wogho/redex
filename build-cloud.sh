@@ -15,6 +15,6 @@ cp -r web/out/* server/webui/dist/
 
 # 3. Go 단일 바이너리 컴파일 (embedui 태그 필수)
 echo "[*] Compiling Go Backend..."
-CGO_ENABLED=0 go build -tags embedui -o artex ./cmd/artex
+CGO_ENABLED=0 go build -tags embedui -o redex ./cmd/redex
 
 echo "[+] Build Completed successfully!"

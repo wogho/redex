@@ -7,17 +7,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/wogho/redex/db"
 )
 
-// 이 테스트는 상류 ARTEX(0.3.15 계열)에 있던
+// 이 테스트는 상류 Redex(0.3.15 계열)에 있던
 // GET /api/intercept/judge/usage 를 이 포크로 되가져오면서 함께 추가한 것이다.
 // 폴백 판정(judge) 이 소비한 토큰 누계와 일자별 계열이 실제 DB 에서 정확히
 // 집계되는지, 그리고 DB 가 없을 때도 500 이 아니라 빈 계열로 응답하는지 본다.
 //
 // DB 설정이 없으면 다른 통합 테스트처럼 건너뛴다(server/testmain_test.go 참고).
 //
-// These tests cover the endpoint restored from upstream ARTEX: judge token totals
+// These tests cover the endpoint restored from upstream Redex: judge token totals
 // and the per-day series, plus the no-database graceful path.
 const judgeFixtureModel = "judge-usage-test-fixture"
 

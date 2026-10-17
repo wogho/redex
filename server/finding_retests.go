@@ -12,9 +12,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/intercept"
+	"github.com/wogho/redex/agent"
+	"github.com/wogho/redex/db"
+	"github.com/wogho/redex/intercept"
 	actool "github.com/Autumn-27/norma/tool"
 )
 

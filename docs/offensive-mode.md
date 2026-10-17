@@ -1,6 +1,6 @@
-# 공격형 모드 (`ARTEX_MODE=offensive`)
+# 공격형 모드 (`REDEX_MODE=offensive`)
 
-ARTEX 를 "정찰·검증 중심"에서 **"익스플로잇 우선"** 으로 바꾸는 런타임 모드.
+Redex 를 "정찰·검증 중심"에서 **"익스플로잇 우선"** 으로 바꾸는 런타임 모드.
 코드는 모드 분기만 하고, 기본값(미설정)은 상류 동작 그대로다.
 
 ## 켜는 법
@@ -8,10 +8,10 @@ ARTEX 를 "정찰·검증 중심"에서 **"익스플로잇 우선"** 으로 바�
 ```yaml
 # compose / docker run
 environment:
-  ARTEX_MODE: offensive
+  REDEX_MODE: offensive
 ```
 
-또는 `docker run -e ARTEX_MODE=offensive ...`. 재기동하면 적용된다.
+또는 `docker run -e REDEX_MODE=offensive ...`. 재기동하면 적용된다.
 
 ## 바뀌는 것
 
@@ -34,15 +34,15 @@ environment:
 
 ## 되돌리기
 
-`ARTEX_MODE` 를 지우거나 `default` 로 바꾸고 재기동. DB·볼륨·프롬프트 수정은 건드리지 않는다.
+`REDEX_MODE` 를 지우거나 `default` 로 바꾸고 재기동. DB·볼륨·프롬프트 수정은 건드리지 않는다.
 
 ## 확인
 
 ```bash
-docker logs artex-artex-1 | grep '\[mode\]'
+docker logs redex-redex-1 | grep '\[mode\]'
 # [mode] offensive — intercept 승인 게이트 비활성화 · 공격(익스플로잇) 우선 프롬프트 주입
 
-docker exec artex-artex-1 bash -lc 'sqlmap --version; ffuf -V | head -1; nuclei -version | head -1'
+docker exec redex-redex-1 bash -lc 'sqlmap --version; ffuf -V | head -1; nuclei -version | head -1'
 ```
 
 ## 주의

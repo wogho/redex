@@ -1,4 +1,4 @@
-module github.com/Autumn-27/artex
+module github.com/wogho/redex
 
 go 1.26.3
 

@@ -3,7 +3,7 @@ package server
 import (
 	"testing"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/wogho/redex/db"
 )
 
 // TestTaskLLMResolutionLocalized guards F18: every user-facing reason/label that

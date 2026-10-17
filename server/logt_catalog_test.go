@@ -11,7 +11,7 @@ import (
 	"testing"
 	"unicode"
 
-	"github.com/Autumn-27/artex/config"
+	"github.com/wogho/redex/config"
 )
 
 // TestLogTTemplatesHaveTranslations pins that every logT("…") template in this
@@ -70,7 +70,7 @@ func TestLogTTemplatesHaveTranslations(t *testing.T) {
 		t.Fatal("found no logT call sites; the scan is broken")
 	}
 	for _, lang := range []string{"en", "zh", "es"} {
-		t.Setenv("ARTEX_LANG", lang)
+		t.Setenv("REDEX_LANG", lang)
 		for _, k := range keys {
 			if config.T(k) == k {
 				t.Errorf("logT template has no %s translation: %q", lang, k)

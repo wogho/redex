@@ -8,13 +8,13 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/traffic"
+	"github.com/wogho/redex/agent"
+	"github.com/wogho/redex/db"
+	"github.com/wogho/redex/traffic"
 	actool "github.com/Autumn-27/norma/tool"
 )
 
-// 현지화 보존 판정(artex-global): 이 파일의 중국어 문자열은 전부 에이전트(두뇌) 입력이고
+// 현지화 보존 판정(redex-global): 이 파일의 중국어 문자열은 전부 에이전트(두뇌) 입력이고
 // HTTP 사용자 응답으로 나가지 않는다. BRIEF 경계 #1(두뇌는 번역하지 않는다 — 성능
 // 보존)에 따라 원문을 그대로 둔다. 이 파일에 writeErr 는 0 — 사용자 노출 경로가 없다.
 // 싱크는 세 갈래다(행 번호 대신 심볼로 가리킨다. 편집으로 밀려도 유효하게).

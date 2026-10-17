@@ -3007,7 +3007,7 @@ export const trafficDetail: TrafficDetail = {
   req: `GET /v1/orders?id=1002 HTTP/1.1
 Host: api.acme.com
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
-User-Agent: ARTEX-worker/1.0
+User-Agent: Redex-worker/1.0
 Accept: application/json
 
 `,
@@ -3269,13 +3269,13 @@ const promptVersions: PromptVersion[] = [
     version: 3,
     ts: T("2026-07-25T10:00:00Z"),
     note: "Strengthened guidance for authorization-bypass detection",
-    template_text: "你是 ARTEX 的规划者……",
+    template_text: "你是 Redex 的规划者……",
   },
   {
     version: 2,
     ts: T("2026-07-20T10:00:00Z"),
     note: "Minor tuning of the initial version",
-    template_text: "你是 ARTEX 的规划者(v2)……",
+    template_text: "你是 Redex 的规划者(v2)……",
   },
 ];
 
@@ -3283,7 +3283,7 @@ export function agentDetail(key: string): AgentDetail {
   const a = agents.find((x) => x.key === key) ?? agents[1];
   return {
     agent: a,
-    prompt: `你是 ARTEX 的「${a.name}」。\n目标：{{.Goal}}\n资产概览：{{.AssetSummary}}\n路线提示：{{.RouteHint}}\n请基于以上信息推进探索，并通过工具把结果写回图。`,
+    prompt: `你是 Redex 的「${a.name}」。\n目标：{{.Goal}}\n资产概览：{{.AssetSummary}}\n路线提示：{{.RouteHint}}\n请基于以上信息推进探索，并通过工具把结果写回图。`,
     variables: promptVars,
     versions: promptVersions,
     visibility: { mcp: [1, 2], skill: ["api-recon", "playwright-cli"] },

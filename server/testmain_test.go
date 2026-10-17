@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/wogho/redex/db"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -30,7 +30,7 @@ func TestMain(m *testing.M) {
 	// so pin the default output language to Korean for the whole test binary.
 	// Production defaults to English (config.DefaultLanguage); individual tests
 	// that need another language set it explicitly (t.Setenv / the settings table).
-	os.Setenv("ARTEX_LANG", "ko")
+	os.Setenv("REDEX_LANG", "ko")
 
 
 	dsn, _, err := db.DSN()

@@ -1,9 +1,9 @@
 package agent
 
-import "github.com/Autumn-27/artex/config"
+import "github.com/wogho/redex/config"
 
 // offensiveDirective returns the code-owned 进攻模式 tail appended to every
-// pentest role's system prompt when ARTEX_MODE=offensive. Like langDirective and
+// pentest role's system prompt when REDEX_MODE=offensive. Like langDirective and
 // artifactSpec it is appended AFTER the rendered (DB-editable) body, so a prompt
 // edited in the UI cannot drop it. Empty string in the default mode.
 //

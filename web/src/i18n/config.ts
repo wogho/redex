@@ -1,4 +1,4 @@
-// 지원 locale 과 기본값. artex-global 은 영어를 기본으로 하고, 한국어·중국어·스페인어·일본어를
+// 지원 locale 과 기본값. redex-global 은 영어를 기본으로 하고, 한국어·중국어·스페인어·일본어를
 // 더해 다섯 언어를 사용자 설정으로 전환할 수 있다. 중국어("zh")는 상류 원문 대조용으로도 함께 둔다.
 export const LOCALES = ["en", "ko", "zh", "es", "ja"] as const;
 export type Locale = (typeof LOCALES)[number];
@@ -19,8 +19,8 @@ export const LOCALE_LABELS: Record<Locale, string> = {
 
 // 사용자가 고른 표시 언어를 저장하는 키. 화면은 localStorage 값을 읽는다. 쿠키에도 같은
 // 값을 써 두지만 지금은 읽는 곳이 없다(서버가 언어를 판별해야 할 때를 위해 남겨 둔다).
-export const LOCALE_COOKIE = "artex_locale";
-export const LOCALE_STORAGE_KEY = "artex_locale";
+export const LOCALE_COOKIE = "redex_locale";
+export const LOCALE_STORAGE_KEY = "redex_locale";
 
 // 임의 문자열이 지원 locale 인지 좁혀 주는 가드.
 export function isLocale(raw: unknown): raw is Locale {

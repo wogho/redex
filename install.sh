@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ARTEX 설치 스크립트: ① 전부 Docker  ② 로컬 컴파일 실행
+# Redex 설치 스크립트: ① 전부 Docker  ② 로컬 컴파일 실행
 set -euo pipefail
 cd "$(cd "$(dirname "$0")" && pwd)"
 
@@ -48,14 +48,14 @@ install_docker(){
   info "이미지를 받아 기동합니다…"
   docker compose pull || true
   if ! docker compose up -d; then
-    warn "이미지 ghcr.io/jiwoochris/artex-global 를 받거나 기동하지 못했습니다(.env 의 ARTEX_TAG 가 발행된 태그인지, 네트워크가 되는지 확인하세요)"
+    warn "이미지 ghcr.io/jiwoochris/redex-global 를 받거나 기동하지 못했습니다(.env 의 REDEX_TAG 가 발행된 태그인지, 네트워크가 되는지 확인하세요)"
     warn "이 스크립트를 다시 실행해 \"2) 로컬 실행 (go 컴파일)\" 을 고르거나, README \"소스에서 단일 바이너리 컴파일\" 경로로 빌드할 수도 있습니다"
     die "Docker Compose(전부 Docker) 기동에 실패했습니다"
   fi
   ok "기동을 완료했습니다 → http://localhost:8787"
   info "첫 접속 시 /setup 화면에서 \"설정 토큰\"을 입력해야 관리자 비밀번호를 만들 수 있습니다"
-  info "설정 토큰 확인: docker compose logs artex | grep -F '[auth]'   (기본 게시 주소는 127.0.0.1 이며 .env 의 ARTEX_BIND 로 바꿉니다)"
-  info "로그 확인: docker compose logs -f artex"
+  info "설정 토큰 확인: docker compose logs redex | grep -F '[auth]'   (기본 게시 주소는 127.0.0.1 이며 .env 의 REDEX_BIND 로 바꿉니다)"
+  info "로그 확인: docker compose logs -f redex"
 }
 
 # ── ② 로컬 컴파일 실행 ────────────────────────────
@@ -67,16 +67,16 @@ install_local(){
     2)
       ensure_docker
       local pw; pw="$(ask 'Postgres 비밀번호 (엔터를 누르면 무작위)' "$(rand)")"
-      docker run -d --name artex-pg -p 5432:5432 \
-        -e POSTGRES_USER=artex -e POSTGRES_PASSWORD="$pw" -e POSTGRES_DB=artex \
-        -v artex-pg:/var/lib/postgresql/data postgres:16-alpine
-      DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=artex DB_PASS="$pw" DB_NAME=artex DB_SSL=disable ;;
+      docker run -d --name redex-pg -p 5432:5432 \
+        -e POSTGRES_USER=redex -e POSTGRES_PASSWORD="$pw" -e POSTGRES_DB=redex \
+        -v redex-pg:/var/lib/postgresql/data postgres:16-alpine
+      DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=redex DB_PASS="$pw" DB_NAME=redex DB_SSL=disable ;;
     *)
       DB_HOST="$(ask '데이터베이스 주소' 127.0.0.1)"
       DB_PORT="$(ask '포트' 5432)"
-      DB_USER="$(ask '계정' artex)"
+      DB_USER="$(ask '계정' redex)"
       DB_PASS="$(ask '비밀번호' '')"
-      DB_NAME="$(ask '데이터베이스 이름' artex)"
+      DB_NAME="$(ask '데이터베이스 이름' redex)"
       DB_SSL="$(ask 'sslmode (disable/require)' disable)" ;;
   esac
 
@@ -105,19 +105,19 @@ JSON
     ( cd web && npm ci && npm run build:static )
     rm -rf server/webui/dist && mkdir -p server/webui && cp -r web/out server/webui/dist
     info "프런트엔드를 내장한 단일 바이너리를 컴파일합니다…"
-    CGO_ENABLED=0 go build -tags embedui -trimpath -o artex ./cmd/artex
+    CGO_ENABLED=0 go build -tags embedui -trimpath -o redex ./cmd/redex
   else
     warn "npm 을 찾을 수 없습니다: 프런트엔드를 내장하지 않은 백엔드만 컴파일합니다 (프런트엔드는 npm run dev 로 따로 실행)"
-    CGO_ENABLED=0 go build -o artex ./cmd/artex
+    CGO_ENABLED=0 go build -o redex ./cmd/redex
   fi
-  ok "컴파일을 완료했습니다 → ./artex"
+  ok "컴파일을 완료했습니다 → ./redex"
 
   info "기동합니다… (Ctrl-C 로 종료). 기본 바인딩은 127.0.0.1:8787 이며, 첫 접속 시 아래 로그의 [auth] 설정 토큰을 /setup 화면에 입력하십시오"
-  ./artex
+  ./redex
 }
 
 echo "=============================="
-echo "  ARTEX 설치"
+echo "  Redex 설치"
 echo "  1) 전부 Docker 설치"
 echo "  2) 로컬 실행 (go 컴파일)"
 echo "=============================="

@@ -29,18 +29,18 @@ type Config struct {
 	Database Database `json:"database"`
 	SkillDir string   `json:"skill_dir"`
 	// Language is the bootstrap/default user-facing output language for the
-	// artex-global ("en"/"ko"/"zh"/"es"/"ja"). Empty → DefaultLanguage. At
+	// redex-global ("en"/"ko"/"zh"/"es"/"ja"). Empty → DefaultLanguage. At
 	// runtime a value stored in the settings table (edited in the UI) overrides it.
 	Language string `json:"language"`
 }
 
-// SupportedLanguages lists the user-facing output languages artex-global can
+// SupportedLanguages lists the user-facing output languages redex-global can
 // switch between. Agent output, UI strings and backend messages all key off these.
 var SupportedLanguages = []string{"en", "ko", "zh", "es", "ja"}
 
 // DefaultLanguage is the out-of-box user-facing language when nothing is
-// configured. artex-global defaults to English; Korean, Chinese, Spanish and
-// Japanese are selectable at runtime via the language setting (and ARTEX_LANG).
+// configured. redex-global defaults to English; Korean, Chinese, Spanish and
+// Japanese are selectable at runtime via the language setting (and REDEX_LANG).
 const DefaultLanguage = "en"
 
 // NormalizeLanguage lower-cases and validates a language code, returning "" when
@@ -79,13 +79,13 @@ func ActiveLanguage() string {
 
 // Language resolves the default user-facing output language with precedence:
 //
-//	env ARTEX_LANG  >  config file (language)  >  DefaultLanguage
+//	env REDEX_LANG  >  config file (language)  >  DefaultLanguage
 //
 // This is the bootstrap default only. The runtime value a user picks in the UI is
 // stored in the settings table and takes precedence over this — the server layers
 // the two and wires the result into the agent and message catalogs.
 func Language() string {
-	if v := NormalizeLanguage(os.Getenv("ARTEX_LANG")); v != "" {
+	if v := NormalizeLanguage(os.Getenv("REDEX_LANG")); v != "" {
 		return v
 	}
 	if v := NormalizeLanguage(Load().Language); v != "" {
@@ -136,7 +136,7 @@ func isGoRunDir(dir string) bool {
 }
 
 // Path returns the config file path. Resolution order:
-//  1. env ARTEX_CONFIG (explicit override)
+//  1. env REDEX_CONFIG (explicit override)
 //  2. ./config.json in the current working directory (running from the project
 //     dir — robust no matter where `go run` placed the temp/cached binary)
 //  3. config.json next to the executable (a distributed binary keeps it beside)
@@ -144,7 +144,7 @@ func isGoRunDir(dir string) bool {
 // The first existing file wins. If none exist, the CWD path is returned so the
 // "not found" message points at the project dir the user most likely expected.
 func Path() string {
-	if v := strings.TrimSpace(os.Getenv("ARTEX_CONFIG")); v != "" {
+	if v := strings.TrimSpace(os.Getenv("REDEX_CONFIG")); v != "" {
 		return v
 	}
 	var candidates []string
@@ -174,12 +174,12 @@ func Load() Config {
 
 // SkillDir returns the skill root directory with precedence:
 //
-//	env ARTEX_SKILL_DIR  >  config file (skill_dir)  >  BaseDir()/skills
+//	env REDEX_SKILL_DIR  >  config file (skill_dir)  >  BaseDir()/skills
 //
 // The directory is created if it does not exist.
 func SkillDir() string {
 	var d string
-	if v := strings.TrimSpace(os.Getenv("ARTEX_SKILL_DIR")); v != "" {
+	if v := strings.TrimSpace(os.Getenv("REDEX_SKILL_DIR")); v != "" {
 		d = v
 	} else if v := strings.TrimSpace(Load().SkillDir); v != "" {
 		d = v
@@ -192,15 +192,15 @@ func SkillDir() string {
 
 // PostgresDSN resolves the connection string with precedence:
 //
-//	env ARTEX_PG_DSN  >  config file (database.dsn, or assembled from fields)
+//	env REDEX_PG_DSN  >  config file (database.dsn, or assembled from fields)
 //
 // There is NO built-in fallback: when neither source supplies a database config,
 // it returns an error naming the config path it inspected, so startup fails loudly
 // instead of silently connecting to a wrong default. source describes where the
 // DSN came from (for startup logging).
 func PostgresDSN() (dsn, source string, err error) {
-	if v := strings.TrimSpace(os.Getenv("ARTEX_PG_DSN")); v != "" {
-		return v, trCfg("환경 변수 ARTEX_PG_DSN"), nil
+	if v := strings.TrimSpace(os.Getenv("REDEX_PG_DSN")); v != "" {
+		return v, trCfg("환경 변수 REDEX_PG_DSN"), nil
 	}
 	db := Load().Database
 	if d := strings.TrimSpace(db.DSN); d != "" {
@@ -209,7 +209,7 @@ func PostgresDSN() (dsn, source string, err error) {
 	if db.Host != "" || db.DBName != "" || db.User != "" {
 		return db.buildDSN(), fmt.Sprintf(trCfg("설정 파일 %s (database 필드)"), Path()), nil
 	}
-	return "", "", fmt.Errorf(trCfg("데이터베이스 설정을 찾을 수 없습니다: 환경 변수 ARTEX_PG_DSN 이 설정되어 있지 않고, 설정 파일 %s 에도 database (dsn 또는 host/user/dbname) 설정이 없습니다. 설정 파일을 만들거나 환경 변수를 설정한 뒤 다시 시도하세요"), Path())
+	return "", "", fmt.Errorf(trCfg("데이터베이스 설정을 찾을 수 없습니다: 환경 변수 REDEX_PG_DSN 이 설정되어 있지 않고, 설정 파일 %s 에도 database (dsn 또는 host/user/dbname) 설정이 없습니다. 설정 파일을 만들거나 환경 변수를 설정한 뒤 다시 시도하세요"), Path())
 }
 
 func (d Database) buildDSN() string {

@@ -30,10 +30,10 @@ const (
 	// setupTokenEnv pins the first-run setup token to a known value (headless /
 	// automated deployments). When unset a random token is generated at startup and
 	// printed to the server console only.
-	setupTokenEnv = "ARTEX_SETUP_TOKEN"
+	setupTokenEnv = "REDEX_SETUP_TOKEN"
 	// adminPasswordEnv initialises the admin password at startup without the /setup
 	// screen (headless deployments). Ignored once a password is set.
-	adminPasswordEnv = "ARTEX_ADMIN_PASSWORD"
+	adminPasswordEnv = "REDEX_ADMIN_PASSWORD"
 	// minPasswordLen mirrors the /setup screen's client-side rule, enforced server side.
 	minPasswordLen = 8
 	// maxPasswordBytes is bcrypt's hard limit: GenerateFromPassword errors past 72
@@ -116,10 +116,10 @@ func randomToken(n int) (string, error) {
 	return string(buf), nil
 }
 
-// signJWT issues a 7-day HS256 token for user ARTEX.
+// signJWT issues a 7-day HS256 token for user Redex.
 func signJWT(key []byte) (string, error) {
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Subject:   "ARTEX",
+		Subject:   "Redex",
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(jwtTTL)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}).SignedString(key)
@@ -229,7 +229,7 @@ func (s *Server) verifyToken(tok string) bool {
 }
 
 // bootstrapAuth runs once at startup. It caches the stored password hash and, when
-// no password is set yet, either initialises it from ARTEX_ADMIN_PASSWORD (headless
+// no password is set yet, either initialises it from REDEX_ADMIN_PASSWORD (headless
 // deployments) or issues the first-run setup token that /api/auth/init requires.
 func (s *Server) bootstrapAuth() {
 	if s.m == nil || s.m.pg == nil {
@@ -262,7 +262,7 @@ func (s *Server) bootstrapAuth() {
 			return
 		} else {
 			s.setPassHash(string(h))
-			log.Printf(logT("[auth] 환경 변수 %s 로 관리자 비밀번호를 초기화했습니다(사용자 이름 ARTEX)"), adminPasswordEnv)
+			log.Printf(logT("[auth] 환경 변수 %s 로 관리자 비밀번호를 초기화했습니다(사용자 이름 Redex)"), adminPasswordEnv)
 			return
 		}
 	}
@@ -271,7 +271,7 @@ func (s *Server) bootstrapAuth() {
 
 // currentSetupToken returns the setup token that gates /api/auth/init while no
 // password is set, generating (and printing to the console) one on first use.
-// ARTEX_SETUP_TOKEN, when set, is used verbatim and never logged.
+// REDEX_SETUP_TOKEN, when set, is used verbatim and never logged.
 func (s *Server) currentSetupToken() string {
 	s.authMu.Lock()
 	defer s.authMu.Unlock()
@@ -441,12 +441,12 @@ func (s *Server) WarnIfExposed(addr string) {
 }
 
 // extractToken reads the JWT from Authorization: Bearer header,
-// artex_token cookie, or ?token= query param (for SSE connections).
+// redex_token cookie, or ?token= query param (for SSE connections).
 func extractToken(r *http.Request) string {
 	if h := r.Header.Get("Authorization"); strings.HasPrefix(h, "Bearer ") {
 		return strings.TrimPrefix(h, "Bearer ")
 	}
-	if c, err := r.Cookie("artex_token"); err == nil && c.Value != "" {
+	if c, err := r.Cookie("redex_token"); err == nil && c.Value != "" {
 		return c.Value
 	}
 	return r.URL.Query().Get("token")
@@ -685,7 +685,7 @@ func (s *Server) authLogin(w http.ResponseWriter, r *http.Request) {
 	// Always run the bcrypt comparison so a wrong username costs the same as a
 	// wrong password (no username oracle, no timing shortcut).
 	pwErr := bcrypt.CompareHashAndPassword([]byte(hash), []byte(req.Password))
-	if req.Username != "ARTEX" || pwErr != nil {
+	if req.Username != "Redex" || pwErr != nil {
 		s.limiter().fail(key)
 		log.Printf(logT("[auth] 로그인 실패 (client=%s)"), clientLogID(r))
 		writeErr(w, 401, authErrBadCredential)

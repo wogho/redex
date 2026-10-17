@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Autumn-27/artex/config"
+	"github.com/wogho/redex/config"
 )
 
 // TestOutputLanguageCacheFollowsSettings pins that the cached output language
@@ -16,7 +16,7 @@ import (
 // switch applies to the very next response without re-reading the settings
 // table per message.
 func TestOutputLanguageCacheFollowsSettings(t *testing.T) {
-	t.Setenv("ARTEX_LANG", "")
+	t.Setenv("REDEX_LANG", "")
 	m, err := NewManager(t.TempDir(), "")
 	if err != nil {
 		t.Skipf("postgres unavailable (%v) — skipping", err)
