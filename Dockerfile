@@ -37,12 +37,14 @@ RUN npm install -g @playwright/mcp@latest @playwright/cli@latest playwright@late
 # whatweb(지문), dirb/wfuzz/gobuster(디렉터리·파라미터 퍼징), perl(nikto 런타임).
 RUN apt-get update && apt-get install -y --no-install-recommends \
       sqlmap hydra masscan whatweb dirb wfuzz gobuster perl \
+      libxml-writer-perl libnet-ssleay-perl \
     && rm -rf /var/lib/apt/lists/*
 # impacket: SMB/LDAP/Kerberos 공격·자격증명 도구 모음(python3).
 RUN pip install --no-cache-dir impacket
 # nikto: Debian 패키지가 없어 업스트림 저장소에서 직접 받는다(perl 스크립트).
 RUN git clone --depth 1 https://github.com/sullo/nikto.git /opt/nikto \
-    && ln -sf /opt/nikto/program/nikto.pl /usr/local/bin/nikto
+    && ln -sf /opt/nikto/program/nikto.pl /usr/local/bin/nikto \
+    && nikto -Version >/dev/null
 # 단일 바이너리 도구(Go): 릴리스 아티팩트를 아키텍처에 맞춰 배치한다.
 RUN set -eux; \
     case "${TARGETARCH:-amd64}" in \
