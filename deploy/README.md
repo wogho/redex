@@ -2,7 +2,7 @@
 
 Source: https://github.com/wogho/artex-ko.git
 
-Installed source revision: `fdfb7a17b7da5e2de716c0e98475ec77a41c64c6` (global edition, fdfb7a1).
+Installed source revision: `777c41c` (branch `offensive`, built from commit above).
 The UI and Go binary are compiled from this revision for Linux ARM64.
 The web UI is built with `NEXT_PUBLIC_LOCALE=ko` (Korean default, switchable to en/zh/es/ja in Settings).
 The upstream runtime tools and Playwright Chromium are included in the image.
@@ -49,7 +49,7 @@ bash deploy/build.sh
 docker compose -f compose.production.yml up -d artex
 ```
 
-The deployment configuration pins the local image tag to the installed revision (`artex-global:fdfb7a1`).
+The deployment configuration pins the local image tag to the installed revision (`artex-global:777c41c`).
 Before deploying a different revision, update that tag and this record together.
 
 ## HTTPS
