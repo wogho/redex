@@ -112,6 +112,11 @@ func run() int {
 		skillDir = abs
 	}
 	log.Printf(config.T("[config] skill 디렉터리: %s"), skillDir)
+	if config.Offensive() {
+		log.Printf("[mode] offensive — intercept 승인 게이트 비활성화 · 공격(익스플로잇) 우선 프롬프트 주입")
+	} else {
+		log.Printf("[mode] default — intercept 승인 게이트 활성 · 정찰/검증 우선 프롬프트")
+	}
 	srv := server.New(ctx, mgr, skillDir, *dataDir, config.BaseDir())
 	srv.WarnIfExposed(*addr)
 	httpSrv := &http.Server{

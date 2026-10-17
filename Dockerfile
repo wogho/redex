@@ -29,6 +29,47 @@ RUN npm install -g @playwright/mcp@latest @playwright/cli@latest playwright@late
     && playwright-cli --help \
     && playwright install --with-deps chromium \
     && rm -rf /var/lib/apt/lists/*
+
+# ---------------------------------------------------------------------------
+# 공격 도구 세트 (ARTEX_MODE=offensive 에서 에이전트가 Bash 로 바로 사용)
+# ---------------------------------------------------------------------------
+# apt 로 들어오는 것: sqlmap(주입), hydra(자격증명), masscan(대역 스캔),
+# whatweb(지문), dirb/wfuzz/gobuster(디렉터리·파라미터 퍼징), perl(nikto 런타임).
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      sqlmap hydra masscan whatweb dirb wfuzz gobuster perl \
+    && rm -rf /var/lib/apt/lists/*
+# impacket: SMB/LDAP/Kerberos 공격·자격증명 도구 모음(python3).
+RUN pip install --no-cache-dir impacket
+# nikto: Debian 패키지가 없어 업스트림 저장소에서 직접 받는다(perl 스크립트).
+RUN git clone --depth 1 https://github.com/sullo/nikto.git /opt/nikto \
+    && ln -sf /opt/nikto/program/nikto.pl /usr/local/bin/nikto
+# 단일 바이너리 도구(Go): 릴리스 아티팩트를 아키텍처에 맞춰 배치한다.
+RUN set -eux; \
+    case "${TARGETARCH:-amd64}" in \
+      amd64) A=amd64 ;; \
+      arm64) A=arm64 ;; \
+      *) echo "unsupported TARGETARCH ${TARGETARCH}"; exit 1 ;; \
+    esac; \
+    curl -fsSL -o /tmp/ffuf.tgz "https://github.com/ffuf/ffuf/releases/download/v2.3.0/ffuf_2.3.0_linux_${A}.tar.gz"; \
+    tar -xzf /tmp/ffuf.tgz -C /usr/local/bin ffuf; \
+    curl -fsSL -o /tmp/nuclei.zip "https://github.com/projectdiscovery/nuclei/releases/download/v3.11.1/nuclei_3.11.1_linux_${A}.zip"; \
+    unzip -oq /tmp/nuclei.zip -d /usr/local/bin; \
+    curl -fsSL -o /tmp/subfinder.zip "https://github.com/projectdiscovery/subfinder/releases/download/v2.17.0/subfinder_2.17.0_linux_${A}.zip"; \
+    unzip -oq /tmp/subfinder.zip -d /usr/local/bin; \
+    curl -fsSL -o /tmp/chisel.deb "https://github.com/jpillora/chisel/releases/download/v1.12.0/chisel_1.12.0_linux_${A}.deb"; \
+    dpkg -i /tmp/chisel.deb; \
+    rm -f /tmp/ffuf.tgz /tmp/nuclei.zip /tmp/subfinder.zip /tmp/chisel.deb; \
+    ffuf -V | head -1; nuclei -version | head -1; subfinder -version | head -1; chisel --version
+# nuclei 템플릿은 빌드 시점에 받아 둔다(런타임 네트워크 의존 제거). 실패해도 빌드는 계속한다.
+RUN nuclei -update-templates -silent || true
+# 자주 쓰는 워드리스트를 이미지에 고정한다(런타임 다운로드 제거).
+RUN mkdir -p /opt/wordlists && cd /opt/wordlists \
+    && curl -fsSL -o raft-medium-directories.txt https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/raft-medium-directories.txt \
+    && curl -fsSL -o raft-small-words.txt https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/raft-small-words.txt \
+    && curl -fsSL -o common.txt https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/common.txt \
+    && curl -fsSL -o rockyou-75.txt https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Leaked-Databases/rockyou-75.txt \
+    && ls -lh /opt/wordlists
+
 WORKDIR /app
 # 미리 컴파일한 해당 아키텍처 바이너리(dist/amd64/artex 또는 dist/arm64/artex)
 COPY dist/${TARGETARCH}/artex /app/artex

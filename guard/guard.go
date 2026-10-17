@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Autumn-27/artex/config"
 	"github.com/Autumn-27/artex/intercept"
 	"github.com/Autumn-27/norma/hook"
 )
@@ -82,6 +83,13 @@ func (g *Guard) preToolUse(ctx context.Context, ev hook.Event) hook.Result {
 // Both rules and the fallback judge receive the complete tool input.
 func (g *Guard) applyIntercept(ctx context.Context, ev hook.Event) hook.Result {
 	if g.interceptor == nil {
+		return hook.Result{}
+	}
+	// Offensive mode (ARTEX_MODE=offensive): the whole approval pipeline — DB
+	// rules, the LLM fallback judge, and the manual ask/approval wait — is
+	// bypassed. preToolUse already appended an "allow" audit entry, so every
+	// call stays visible in the audit trail; only the gate is gone.
+	if config.Offensive() {
 		return hook.Result{}
 	}
 	if !g.interceptor.IsToolEnabled(ev.ToolName) {
