@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api";
 
 type Candidate = {
@@ -341,6 +342,15 @@ export default function OsintPage() {
           </Button>
         </div>
       </div>
+<Tabs defaultValue="collect" className="gap-4">
+        <TabsList>
+          <TabsTrigger value="collect">수집</TabsTrigger>
+          <TabsTrigger value="image">이미지</TabsTrigger>
+          <TabsTrigger value="providers">프로바이더</TabsTrigger>
+          <TabsTrigger value="packs">팩</TabsTrigger>
+          <TabsTrigger value="creds">자격</TabsTrigger>
+        </TabsList>
+        <TabsContent value="collect" className="flex flex-col gap-4">
 
       <Card>
         <CardHeader className="pb-3">
@@ -389,48 +399,108 @@ export default function OsintPage() {
         </CardContent>
       </Card>
 
+
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">연결 · 자격</CardTitle>
-          <CardDescription>수집기 세션과 API 키를 여기서 저장합니다. 값은 다시 표시되지 않습니다.</CardDescription>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">후보 ({rows.length})</CardTitle>
+          <CardDescription>검증 전 후보입니다. 증거가 있는 항목만 evidence-backed 로 표시됩니다.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
-          <div className="flex flex-col gap-2">
-            <Label>HIBP 키</Label>
-            <Badge variant={cred?.hibp_configured ? "default" : "outline"}>
-              {cred?.hibp_configured ? "등록됨" : "없음"}
-            </Badge>
-            <Input placeholder="hibp api key" value={hibpKey} onChange={(e) => setHibpKey(e.target.value)} />
-            <Button size="sm" variant="outline" onClick={() => void saveHIBP()}>키 저장</Button>
-            <div className="flex gap-2">
-              <Input placeholder="email" value={hibpEmail} onChange={(e) => setHibpEmail(e.target.value)} />
-              <Button size="sm" onClick={() => void runHIBP()}>조회</Button>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label>GHunt 쿠키</Label>
-            <Badge variant={cred?.ghunt_configured ? "default" : "outline"}>
-              {cred?.ghunt_configured ? "등록됨" : "없음"}
-            </Badge>
-            <Input type="file" accept=".json,.txt" onChange={(e) => setCredFile(e.target.files?.[0] ?? null)} />
-            <Button size="sm" variant="outline" onClick={() => void uploadCred("ghunt")}>쿠키 업로드</Button>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label>instaloader 세션</Label>
-            <Badge variant={cred?.instaloader_configured ? "default" : "outline"}>
-              {cred?.instaloader_user ? `${cred.instaloader_user} 로그인됨` : "없음"}
-            </Badge>
-            <Input placeholder="username" value={igUser} onChange={(e) => setIgUser(e.target.value)} />
-            <Input type="password" placeholder="password" value={igPass} onChange={(e) => setIgPass(e.target.value)} />
-            <div className="flex gap-2">
-              <Button size="sm" onClick={() => void igLogin()}>로그인</Button>
-              <Button size="sm" variant="outline" onClick={() => void api.osintInstaloaderLogout().then(loadCred)}>로그아웃</Button>
-            </div>
-            <Input type="file" onChange={(e) => setCredFile(e.target.files?.[0] ?? null)} />
-            <Button size="sm" variant="outline" onClick={() => void uploadCred("instaloader")}>세션 파일 업로드</Button>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b bg-muted/40 text-left text-xs uppercase text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-2">유형</th>
+                  <th className="px-4 py-2">출처</th>
+                  <th className="px-4 py-2">내용</th>
+                  <th className="px-4 py-2">신뢰도</th>
+                  <th className="px-4 py-2">상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((c) => (
+                  <tr key={c.id} className="border-b last:border-0">
+                    <td className="px-4 py-2 font-mono text-xs">{c.kind}</td>
+                    <td className="px-4 py-2 text-xs">{c.source}</td>
+                    <td className="max-w-[420px] px-4 py-2">
+                      <div className="truncate">{c.detail}</div>
+                      <div className="truncate text-xs text-muted-foreground">{c.value}</div>
+                    </td>
+                    <td className="px-4 py-2 font-mono">{c.confidence}</td>
+                    <td className="px-4 py-2">
+                      <Badge variant={c.status === "evidence-backed" || c.status === "confirmed" ? "default" : "secondary"}>{c.status}</Badge>
+                      <div className="mt-1 flex gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => void verdict(c.id, "confirmed")}>확정</Button>
+                        <Button size="sm" variant="ghost" onClick={() => void verdict(c.id, "rejected")}>기각</Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                      아직 수집된 후보가 없습니다.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+        <TabsContent value="image" className="flex flex-col gap-4">
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ImageIcon className="size-4" />
+              이미지 등록
+            </CardTitle>
+            <CardDescription>라벨과 함께 임베딩을 저장합니다.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap items-end gap-3">
+            <Input type="file" accept="image/*" className="w-64" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+            <Input className="w-48" placeholder="라벨" value={label} onChange={(e) => setLabel(e.target.value)} />
+            <Button variant="outline" onClick={() => void enroll()}>
+              <SendIcon className="size-4" />
+              등록
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <SearchIcon className="size-4" />
+              이미지 검색
+            </CardTitle>
+            <CardDescription>등록된 임베딩과 로컬에서 비교합니다(외부 전송 없음).</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-end gap-3">
+              <Input type="file" accept="image/*" className="w-64" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+              <Button variant="outline" onClick={() => void search()}>
+                검색
+              </Button>
+            </div>
+            {matches.length ? (
+              <div className="text-sm">
+                {matches.map((m) => (
+                  <div key={`${m.id}-${m.score}`} className="flex justify-between border-b py-1 last:border-0">
+                    <span className="font-mono text-xs">{m.label}</span>
+                    <Badge variant="outline">{m.score.toFixed(3)}</Badge>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+      </div>
+
+        </TabsContent>
+        <TabsContent value="providers" className="flex flex-col gap-4">
 
       <Card>
         <CardHeader className="pb-3">
@@ -471,6 +541,9 @@ export default function OsintPage() {
           ))}
         </CardContent>
       </Card>
+
+        </TabsContent>
+        <TabsContent value="packs" className="flex flex-col gap-4">
 
       <Card>
         <CardHeader className="pb-3">
@@ -531,102 +604,54 @@ export default function OsintPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <ImageIcon className="size-4" />
-              이미지 등록
-            </CardTitle>
-            <CardDescription>라벨과 함께 임베딩을 저장합니다.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap items-end gap-3">
-            <Input type="file" accept="image/*" className="w-64" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-            <Input className="w-48" placeholder="라벨" value={label} onChange={(e) => setLabel(e.target.value)} />
-            <Button variant="outline" onClick={() => void enroll()}>
-              <SendIcon className="size-4" />
-              등록
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <SearchIcon className="size-4" />
-              이미지 검색
-            </CardTitle>
-            <CardDescription>등록된 임베딩과 로컬에서 비교합니다(외부 전송 없음).</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3">
-            <div className="flex flex-wrap items-end gap-3">
-              <Input type="file" accept="image/*" className="w-64" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-              <Button variant="outline" onClick={() => void search()}>
-                검색
-              </Button>
-            </div>
-            {matches.length ? (
-              <div className="text-sm">
-                {matches.map((m) => (
-                  <div key={`${m.id}-${m.score}`} className="flex justify-between border-b py-1 last:border-0">
-                    <span className="font-mono text-xs">{m.label}</span>
-                    <Badge variant="outline">{m.score.toFixed(3)}</Badge>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
-      </div>
+        </TabsContent>
+        <TabsContent value="creds" className="flex flex-col gap-4">
 
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">후보 ({rows.length})</CardTitle>
-          <CardDescription>검증 전 후보입니다. 증거가 있는 항목만 evidence-backed 로 표시됩니다.</CardDescription>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">연결 · 자격</CardTitle>
+          <CardDescription>수집기 세션과 API 키를 여기서 저장합니다. 값은 다시 표시되지 않습니다.</CardDescription>
         </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="border-b bg-muted/40 text-left text-xs uppercase text-muted-foreground">
-                <tr>
-                  <th className="px-4 py-2">유형</th>
-                  <th className="px-4 py-2">출처</th>
-                  <th className="px-4 py-2">내용</th>
-                  <th className="px-4 py-2">신뢰도</th>
-                  <th className="px-4 py-2">상태</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((c) => (
-                  <tr key={c.id} className="border-b last:border-0">
-                    <td className="px-4 py-2 font-mono text-xs">{c.kind}</td>
-                    <td className="px-4 py-2 text-xs">{c.source}</td>
-                    <td className="max-w-[420px] px-4 py-2">
-                      <div className="truncate">{c.detail}</div>
-                      <div className="truncate text-xs text-muted-foreground">{c.value}</div>
-                    </td>
-                    <td className="px-4 py-2 font-mono">{c.confidence}</td>
-                    <td className="px-4 py-2">
-                      <Badge variant={c.status === "evidence-backed" || c.status === "confirmed" ? "default" : "secondary"}>{c.status}</Badge>
-                      <div className="mt-1 flex gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => void verdict(c.id, "confirmed")}>확정</Button>
-                        <Button size="sm" variant="ghost" onClick={() => void verdict(c.id, "rejected")}>기각</Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {rows.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-10 text-center text-sm text-muted-foreground">
-                      아직 수집된 후보가 없습니다.
-                    </td>
-                  </tr>
-                ) : null}
-              </tbody>
-            </table>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          <div className="flex flex-col gap-2">
+            <Label>HIBP 키</Label>
+            <Badge variant={cred?.hibp_configured ? "default" : "outline"}>
+              {cred?.hibp_configured ? "등록됨" : "없음"}
+            </Badge>
+            <Input placeholder="hibp api key" value={hibpKey} onChange={(e) => setHibpKey(e.target.value)} />
+            <Button size="sm" variant="outline" onClick={() => void saveHIBP()}>키 저장</Button>
+            <div className="flex gap-2">
+              <Input placeholder="email" value={hibpEmail} onChange={(e) => setHibpEmail(e.target.value)} />
+              <Button size="sm" onClick={() => void runHIBP()}>조회</Button>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>GHunt 쿠키</Label>
+            <Badge variant={cred?.ghunt_configured ? "default" : "outline"}>
+              {cred?.ghunt_configured ? "등록됨" : "없음"}
+            </Badge>
+            <Input type="file" accept=".json,.txt" onChange={(e) => setCredFile(e.target.files?.[0] ?? null)} />
+            <Button size="sm" variant="outline" onClick={() => void uploadCred("ghunt")}>쿠키 업로드</Button>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>instaloader 세션</Label>
+            <Badge variant={cred?.instaloader_configured ? "default" : "outline"}>
+              {cred?.instaloader_user ? `${cred.instaloader_user} 로그인됨` : "없음"}
+            </Badge>
+            <Input placeholder="username" value={igUser} onChange={(e) => setIgUser(e.target.value)} />
+            <Input type="password" placeholder="password" value={igPass} onChange={(e) => setIgPass(e.target.value)} />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => void igLogin()}>로그인</Button>
+              <Button size="sm" variant="outline" onClick={() => void api.osintInstaloaderLogout().then(loadCred)}>로그아웃</Button>
+            </div>
+            <Input type="file" onChange={(e) => setCredFile(e.target.files?.[0] ?? null)} />
+            <Button size="sm" variant="outline" onClick={() => void uploadCred("instaloader")}>세션 파일 업로드</Button>
           </div>
         </CardContent>
       </Card>
+
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -157,7 +157,10 @@
   "nav": {
     "group": {
       "function": "Funciones",
-      "system": "Sistema"
+      "system": "Sistema",
+      "recon": "Reconocimiento",
+      "engage": "Operación",
+      "automation": "Automatización"
     },
     "item": {
       "agents": "Agentes",

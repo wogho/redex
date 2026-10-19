@@ -157,7 +157,10 @@
   "nav": {
     "group": {
       "function": "功能",
-      "system": "系统"
+      "system": "系统",
+      "recon": "侦察·资产",
+      "engage": "交战·证据",
+      "automation": "自动化"
     },
     "item": {
       "agents": "Agent",

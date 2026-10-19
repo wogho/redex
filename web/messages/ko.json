@@ -157,7 +157,10 @@
   "nav": {
     "group": {
       "function": "기능",
-      "system": "시스템"
+      "system": "시스템",
+      "recon": "정찰·자산",
+      "engage": "교전·증거",
+      "automation": "자동화"
     },
     "item": {
       "agents": "에이전트",

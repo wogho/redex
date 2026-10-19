@@ -157,7 +157,10 @@
   "nav": {
     "group": {
       "function": "機能",
-      "system": "システム"
+      "system": "システム",
+      "recon": "偵察・資産",
+      "engage": "交戦・証拠",
+      "automation": "自動化"
     },
     "item": {
       "agents": "エージェント",

@@ -73,29 +73,41 @@ export interface NavGroup {
 export const sidebarItems: NavGroup[] = [
   {
     id: 1,
-    label: "功能",
+    label: "侦察",
+    items: [
+      { id: "assets", title: "资产", url: "/function/assets", icon: Network },
+      { id: "sync", title: "资产同步", url: "/function/sync", icon: FolderSync },
+      { id: "osint", title: "OSINT", url: "/function/osint", icon: Search },
+      { id: "attack", title: "ATT&CK", url: "/function/attack", icon: Shield },
+    ],
+  },
+  {
+    id: 2,
+    label: "交战",
     items: [
       { id: "dashboard", title: "仪表盘", url: "/dashboard", icon: LayoutDashboard },
       { id: "chat", title: "对话", url: "/chat", icon: MessageSquare },
       { id: "tasks", title: "任务", url: "/function/tasks", icon: Target },
       { id: "findings", title: "发现", url: "/function/findings", icon: Bug },
       { id: "verification", title: "验证队列", url: "/function/verification", icon: ShieldCheck },
-      { id: "attack", title: "ATT&CK", url: "/function/attack", icon: Shield },
       { id: "traffic", title: "流量", url: "/function/traffic", icon: Activity },
       { id: "commands", title: "工具执行", url: "/function/commands", icon: Terminal },
-      { id: "llm-records", title: "LLM 录制", url: "/function/llm-records", icon: Radio },
-      { id: "assets", title: "资产", url: "/function/assets", icon: Network },
-      { id: "sync", title: "资产同步", url: "/function/sync", icon: FolderSync },
-      { id: "workspace", title: "工作空间", url: "/function/workspace", icon: FolderOpen },
       { id: "reports", title: "报告", url: "/function/reports", icon: FileText },
       { id: "scope", title: "交战范围", url: "/function/scope", icon: FileCheck },
-      { id: "osint", title: "OSINT", url: "/function/osint", icon: Search },
+      { id: "workspace", title: "工作空间", url: "/function/workspace", icon: FolderOpen },
+    ],
+  },
+  {
+    id: 3,
+    label: "自动化",
+    items: [
+      { id: "llm-records", title: "LLM 录制", url: "/function/llm-records", icon: Radio },
       { id: "schedules", title: "调度", url: "/function/schedules", icon: CalendarClock, badge: "soon" },
       { id: "credentials", title: "凭据", url: "/function/credentials", icon: KeyRound, badge: "soon" },
     ],
   },
   {
-    id: 2,
+    id: 4,
     label: "系统",
     items: [
       { id: "llm", title: "LLM", url: "/system/llm", icon: Brain },
