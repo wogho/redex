@@ -802,6 +802,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("PUT /api/packs/settings", s.packsSettings)
 	mux.HandleFunc("POST /api/packs/{id}/pin", s.packPin)
 	mux.HandleFunc("POST /api/packs/{id}/consent", s.packConsent)
+	mux.HandleFunc("POST /api/packs/{id}/install-async", s.packInstallAsync)
 	mux.HandleFunc("POST /api/packs/{id}/install-local", s.packInstallLocal)
 	mux.HandleFunc("GET /api/packs/export", s.packsExport)
 	mux.HandleFunc("POST /api/packs/import", s.packsImport)

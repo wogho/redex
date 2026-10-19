@@ -64,6 +64,7 @@ export default function OsintPage() {
   const [packDir, setPackDir] = React.useState("");
   const [localFile, setLocalFile] = React.useState<File | null>(null);
   const [localPack, setLocalPack] = React.useState("");
+  const [packProgress, setPackProgress] = React.useState<Record<string, string>>({});
   const [maxGB, setMaxGB] = React.useState("20");
 
   const loadScopes = React.useCallback(async () => {
@@ -216,7 +217,18 @@ export default function OsintPage() {
 
   const packAction = async (id: string, action: "install" | "enable" | "disable" | "delete") => {
     try {
-      if (action === "install") await api.packInstall(id);
+      if (action === "install") {
+        const r = await api.packInstallAsync(id);
+        const es = new EventSource(`/api/packs/jobs/${r.job_id}/stream?token=${encodeURIComponent(localStorage.getItem("redex_token") ?? "")}`);
+        es.onmessage = (ev) => {
+          const j = JSON.parse(ev.data) as { step?: string; done?: number; total?: number; finished?: boolean; error?: string };
+          setPackProgress((p) => ({ ...p, [id]: `${j.step ?? ""} ${j.total ? Math.round(((j.done ?? 0) / j.total) * 100) + "%" : ""}` }));
+          if (j.finished) {
+            es.close();
+            void loadPacks();
+          }
+        };
+      }
       if (action === "enable") await api.packEnable(id);
       if (action === "disable") await api.packDisable(id);
       if (action === "delete") await api.packDelete(id);
@@ -471,6 +483,7 @@ export default function OsintPage() {
               <div>
                 <div className="text-sm font-medium">{pk.id} <span className="text-xs text-muted-foreground">v{pk.version} · {pk.license}</span></div>
                 <div className="text-xs text-muted-foreground">{pk.description} · {(pk.size / 1024).toFixed(0)} KB</div>
+                {packProgress[pk.id] ? <div className="text-xs text-primary">{packProgress[pk.id]}</div> : null}
               </div>
               <div className="flex gap-2">
                 {!pk.installed ? (
@@ -505,7 +518,14 @@ export default function OsintPage() {
             <Input type="file" accept=".zst,.zip" className="w-56" onChange={(e) => setLocalFile(e.target.files?.[0] ?? null)} />
             <Button size="sm" variant="outline" onClick={() => void installLocal()}>로컬 설치</Button>
             <Input type="file" accept=".zip" className="w-56" onChange={(e) => { const f = e.target.files?.[0]; if (f) void importPacks(f); }} />
-            <span className="text-xs text-muted-foreground">내보내기는 API: /api/packs/export</span>
+            <Button size="sm" variant="outline" onClick={async () => {
+              const r = await fetch("/api/packs/export", { headers: { Authorization: `Bearer ${localStorage.getItem("redex_token") ?? ""}` } });
+              const b = await r.blob();
+              const a = document.createElement("a");
+              a.href = URL.createObjectURL(b);
+              a.download = "redex-packs.zip";
+              a.click();
+            }}>내보내기</Button>
           </div>
           {packs.length === 0 ? <p className="text-sm text-muted-foreground">사용 가능한 팩이 없습니다.</p> : null}
         </CardContent>

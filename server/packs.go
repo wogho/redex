@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -447,3 +448,52 @@ func (s *Server) packConsent(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, 200, map[string]any{"ok": true, "consent": body.Agree})
 }
+
+// POST /api/packs/{id}/install-async -> {"job_id": "..."}
+func (s *Server) packInstallAsync(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	m, ok := packByID(id)
+	if !ok {
+		writeErr(w, 404, "unknown pack")
+		return
+	}
+	j := s.newPackJob(id)
+	writeJSON(w, 202, map[string]any{"job_id": j.ID})
+	go func() {
+		reg := s.loadPackRegistry()
+		dir := reg.Settings.Dir
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			j.finish(err)
+			return
+		}
+		tmp, err := os.CreateTemp(dir, "pack-*.tar.zst")
+		if err != nil {
+			j.finish(err)
+			return
+		}
+		tmpName := tmp.Name()
+		tmp.Close()
+		defer os.Remove(tmpName)
+		if err := s.downloadPack(context.Background(), m, tmpName, j); err != nil {
+			j.finish(err)
+			return
+		}
+		j.set("verify", 0, 0)
+		dest := filepath.Join(dir, id, m.Version)
+		_ = os.RemoveAll(filepath.Join(dir, id))
+		if err := extractPackTar(tmpName, dest); err != nil {
+			j.finish(err)
+			return
+		}
+		reg.Packs[id] = packState{Version: m.Version, SHA256: m.SHA256, Bytes: packBytes(dest), InstalledAt: time.Now().UTC(), LastUsedAt: time.Now().UTC()}
+		s.evictIfNeeded(&reg)
+		if err := s.savePackRegistry(reg); err != nil {
+			j.finish(err)
+			return
+		}
+		j.set("done", 1, 1)
+		j.finish(nil)
+	}()
+}
+
+// POST /api/packs/{id}/consent {"agree":true}
