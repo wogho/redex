@@ -71,6 +71,11 @@ export default function AttackPage() {
     a.click();
   };
 
+  const usedMap = new Map((usage?.techniques ?? []).map((t) => [t.id, t.count]));
+  const coveredIDs = new Set((layer?.techniques ?? []).map((t) => t.techniqueID));
+  const usedCount = [...usedMap.keys()].filter((id) => coveredIDs.has(id)).length;
+  const unused = (layer?.techniques ?? []).filter((t) => !usedMap.has(t.techniqueID));
+
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -88,6 +93,17 @@ export default function AttackPage() {
       </div>
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+      <Card id="coverageExplain">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">이 화면 읽는 법</CardTitle>
+          <CardDescription>
+            <span className="block">커버리지 = 지금 이미지의 도구로 <b>실행 가능한</b> 기법 목록입니다.</span>
+            <span className="block">사용 현황 = 이번 교전의 발견을 기법으로 매핑한 <b>실제 사용</b> 결과입니다.</span>
+            <span className="block">커버리지 탭에서 “이번 교전 사용” 열이 0이면 아직 시도하지 않은 기법입니다.</span>
+          </CardDescription>
+        </CardHeader>
+      </Card>
 
       <Tabs defaultValue="usage" className="gap-4">
         <TabsList>
@@ -139,6 +155,11 @@ export default function AttackPage() {
         </TabsContent>
 
         <TabsContent value="coverage" className="flex flex-col gap-4">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Card><CardHeader className="pb-2"><CardDescription>실행 가능 기법</CardDescription><CardTitle className="text-2xl">{layer?.total ?? 0}</CardTitle></CardHeader></Card>
+            <Card><CardHeader className="pb-2"><CardDescription>이번 교전 사용</CardDescription><CardTitle className="text-2xl">{usedCount}</CardTitle></CardHeader></Card>
+            <Card><CardHeader className="pb-2"><CardDescription>미사용 후보</CardDescription><CardTitle className="text-2xl">{unused.length}</CardTitle></CardHeader></Card>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {Object.entries(layer?.counts ?? {}).map(([tactic, n]) => (
               <Card key={tactic}>
@@ -161,7 +182,9 @@ export default function AttackPage() {
                     <tr>
                       <th className="px-4 py-2">Technique</th>
                       <th className="px-4 py-2">전술</th>
-                      <th className="px-4 py-2">근거</th>
+                      <th className="px-4 py-2">도구/근거</th>
+                      <th className="px-4 py-2">이번 교전</th>
+                      <th className="px-4 py-2">상태</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -170,6 +193,12 @@ export default function AttackPage() {
                         <td className="px-4 py-2 font-mono text-xs">{t.techniqueID}</td>
                         <td className="px-4 py-2"><Badge variant="outline">{TACTIC_KO[t.tactic] ?? t.tactic}</Badge></td>
                         <td className="px-4 py-2 text-muted-foreground">{t.comment ?? "-"}</td>
+                        <td className="px-4 py-2">{usedMap.get(t.techniqueID) ?? 0}</td>
+                        <td className="px-4 py-2">
+                          {usedMap.has(t.techniqueID)
+                            ? <Badge variant="default">사용</Badge>
+                            : <Badge variant="outline">미사용</Badge>}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
