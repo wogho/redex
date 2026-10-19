@@ -153,7 +153,7 @@ Confidence is deterministic (evidence depth, reproduction signals, bound HTTP tr
 {"deny": ["rm\\s+-rf\\s+/(\\s|$)"], "allow": [], "deny_tools": ["shell_open"]}
 ```
 
-`deny` wins even in `REDEX_MODE=offensive`; a non-empty `allow` list turns policy into an allowlist; `deny_tools` blocks by tool name. Set `REDEX_REQUIRE_HUMAN=1` to force the approval gate back on in offensive mode. See [`docs/verification-and-policy.md`](docs/verification-and-policy.md).
+`deny` wins even in `REDEX_MODE=offensive`; a non-empty `allow` list turns policy into an allowlist; `deny_tools` blocks by tool name. Set `REDEX_REQUIRE_HUMAN=1` to force the approval gate back on in offensive mode. See [`docs/verification-and-policy.md`](docs/verification-and-policy.md). Agent integration status and usage: [`docs/agent-integration.md`](docs/agent-integration.md).
 
 ## Why a global edition
 
