@@ -56,6 +56,9 @@ export default function OsintPage() {
   const [igUser, setIgUser] = React.useState("");
   const [igPass, setIgPass] = React.useState("");
   const [credFile, setCredFile] = React.useState<File | null>(null);
+  const [providers, setProviders] = React.useState<Array<{ id: string; name: string; category: string; fields: string[]; paid: boolean; docs: string; note?: string; configured: boolean; implemented: boolean }>>([]);
+  const [providerVals, setProviderVals] = React.useState<Record<string, string>>({});
+  const [providerInput, setProviderInput] = React.useState<Record<string, string>>({});
   const [packs, setPacks] = React.useState<Array<{ id: string; version: string; license: string; description: string; installed: boolean; enabled: boolean; size: number }>>([]);
 
   const loadScopes = React.useCallback(async () => {
@@ -82,6 +85,38 @@ export default function OsintPage() {
     }
   }, []);
 
+  const loadProviders = React.useCallback(async () => {
+    try {
+      const r = await api.osintProviders();
+      setProviders(r.providers ?? []);
+    } catch {
+      /* login required */
+    }
+  }, []);
+
+  const saveProvider = async (id: string) => {
+    const fields = providers.find((p) => p.id === id)?.fields ?? [];
+    const creds: Record<string, string> = {};
+    for (const f of fields) creds[f] = providerVals[`${id}.${f}`] ?? "";
+    try {
+      await api.osintProviderSave(id, creds);
+      toast.success("저장됨");
+      await loadProviders();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const runProvider = async (id: string) => {
+    try {
+      const r = await api.osintProviderRun(id, providerInput[id] ?? "");
+      toast.success(`${r.count}건 수집`);
+      await loadCandidates();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
+
   const loadPacks = React.useCallback(async () => {
     try {
       const r = await api.packsList();
@@ -95,7 +130,8 @@ export default function OsintPage() {
     void loadScopes();
     void loadCred();
     void loadPacks();
-  }, [loadScopes, loadCred, loadPacks]);
+    void loadProviders();
+  }, [loadScopes, loadCred, loadPacks, loadProviders]);
   React.useEffect(() => {
     void loadCandidates();
   }, [loadCandidates]);
@@ -330,6 +366,46 @@ export default function OsintPage() {
             <Input type="file" onChange={(e) => setCredFile(e.target.files?.[0] ?? null)} />
             <Button size="sm" variant="outline" onClick={() => void uploadCred("instaloader")}>세션 파일 업로드</Button>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">프로바이더 (키 입력)</CardTitle>
+          <CardDescription>유료 포함 — 결제는 하지 않습니다. 키를 저장하면 해당 커넥터로 호출합니다.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          {providers.map((pv) => (
+            <div key={pv.id} className="border-b pb-3 last:border-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium">{pv.name}</span>
+                <span className="text-xs text-muted-foreground">{pv.category}</span>
+                {pv.paid ? <Badge variant="outline">paid</Badge> : null}
+                <Badge variant={pv.configured ? "default" : "outline"}>{pv.configured ? "키 등록" : "키 없음"}</Badge>
+                {pv.note ? <span className="text-xs text-muted-foreground">{pv.note}</span> : null}
+              </div>
+              <div className="mt-2 flex flex-wrap items-end gap-2">
+                {pv.fields.map((f) => (
+                  <Input
+                    key={f}
+                    className="w-44"
+                    placeholder={f}
+                    type={f.includes("secret") || f.includes("key") || f.includes("cookie") || f.includes("bearer") ? "password" : "text"}
+                    value={providerVals[`${pv.id}.${f}`] ?? ""}
+                    onChange={(e) => setProviderVals({ ...providerVals, [`${pv.id}.${f}`]: e.target.value })}
+                  />
+                ))}
+                <Button size="sm" variant="outline" onClick={() => void saveProvider(pv.id)} disabled={pv.fields.length === 0}>저장</Button>
+                <Input
+                  className="w-56"
+                  placeholder="검색어"
+                  value={providerInput[pv.id] ?? ""}
+                  onChange={(e) => setProviderInput({ ...providerInput, [pv.id]: e.target.value })}
+                />
+                <Button size="sm" onClick={() => void runProvider(pv.id)} disabled={!pv.implemented}>실행</Button>
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
 

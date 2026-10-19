@@ -312,6 +312,12 @@ export const api = {
     fd.append("label", label);
     return http<{ id: number; label: string; faces: number }>("/osint/face/index", { method: "POST", body: fd });
   },
+  osintProviders: () =>
+    get<{ providers: Array<{ id: string; name: string; category: string; fields: string[]; paid: boolean; docs: string; note?: string; configured: boolean; implemented: boolean }> }>("/osint/providers"),
+  osintProviderSave: (id: string, creds: Record<string, string>) =>
+    put<{ ok: boolean }>(`/osint/providers/${encodeURIComponent(id)}`, { creds }),
+  osintProviderRun: (id: string, input: string) =>
+    post<{ count: number }>(`/osint/providers/${encodeURIComponent(id)}/run`, { input }),
   packsList: () =>
     get<{ packs: Array<{ id: string; version: string; license: string; description: string; installed: boolean; enabled: boolean; size: number }> }>("/packs"),
   packInstall: (id: string) => post<{ ok: boolean; sha256: string }>(`/packs/${encodeURIComponent(id)}/install`, {}),

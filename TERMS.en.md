@@ -119,3 +119,7 @@ Distributors are not liable for any claim, loss or cost arising from the act of
 distributing the Software or packs. Responsibility for use, redistribution or
 provision to third parties rests with the party that does so. Distributors do not
 participate in, or control, the purpose or manner of use.
+
+## 13. Third-party providers and paid data
+
+Redex can store operator-supplied API keys for third-party OSINT providers (Shodan, Censys, IntelX, Epieos, Numverify, X API, Naver, KIPRIS and similar) and call them on the operator's behalf. Pricing, terms and data-use conditions are between the operator and the provider. Distributors do not pay for, warrant, or assume liability for provider availability, accuracy or lawfulness.
