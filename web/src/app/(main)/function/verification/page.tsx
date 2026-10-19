@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { EmptyState, ErrorState, LoadingState } from "@/components/states";
 import { api } from "@/lib/api";
 
 type VerificationRow = {
@@ -49,9 +50,11 @@ export default function VerificationPage() {
   const [status, setStatus] = React.useState("all");
   const [minConfidence, setMinConfidence] = React.useState("0");
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState("");
 
   const load = React.useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
       const q = new URLSearchParams();
       if (status !== "all") q.set("status", status);
@@ -63,6 +66,8 @@ export default function VerificationPage() {
       ]);
       setRows(list.findings ?? []);
       setCounts(summary.counts ?? {});
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -132,6 +137,11 @@ export default function VerificationPage() {
         </div>
       </div>
 
+      {error ? <ErrorState message={error} onRetry={() => void load()} /> : null}
+      {loading && rows.length === 0 ? <LoadingState /> : null}
+      {!loading && !error && rows.length === 0 ? (
+        <EmptyState title="검증할 항목이 없습니다" description="게이트를 통과한 발견이 생기면 여기에 표시됩니다." />
+      ) : null}
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
