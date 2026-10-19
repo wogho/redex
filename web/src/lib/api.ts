@@ -319,11 +319,14 @@ export const api = {
   osintProviderRun: (id: string, input: string) =>
     post<{ count: number }>(`/osint/providers/${encodeURIComponent(id)}/run`, { input }),
   packsList: () =>
-    get<{ packs: Array<{ id: string; version: string; license: string; description: string; installed: boolean; enabled: boolean; size: number }> }>("/packs"),
+    get<{ packs: Array<{ id: string; version: string; license: string; description: string; installed: boolean; enabled: boolean; pinned: boolean; size: number; bytes?: number }>; settings: { dir: string; max_bytes: number; auto_evict: boolean; auto_delete_on_disable: boolean }; usage: { bytes: number; free_bytes: number } }>("/packs"),
   packInstall: (id: string) => post<{ ok: boolean; sha256: string }>(`/packs/${encodeURIComponent(id)}/install`, {}),
   packEnable: (id: string) => post<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}/enable`, {}),
   packDisable: (id: string) => post<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}/disable`, {}),
   packDelete: (id: string) => del<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}`),
+  packPin: (id: string, pinned: boolean) => post<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}/pin`, { pinned }),
+  packSettings: (body: { dir?: string; max_bytes?: number; auto_evict?: boolean; auto_delete_on_disable?: boolean }) =>
+    put<{ ok: boolean }>("/packs/settings", body),
   osintVerdict: (id: string, status: string) => patch<{ ok: boolean }>(`/osint/candidates/${encodeURIComponent(id)}`, { status }),
   osintCredentials: () =>
     get<{

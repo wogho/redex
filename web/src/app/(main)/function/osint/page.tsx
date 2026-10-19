@@ -59,7 +59,10 @@ export default function OsintPage() {
   const [providers, setProviders] = React.useState<Array<{ id: string; name: string; category: string; fields: string[]; paid: boolean; docs: string; note?: string; configured: boolean; implemented: boolean }>>([]);
   const [providerVals, setProviderVals] = React.useState<Record<string, string>>({});
   const [providerInput, setProviderInput] = React.useState<Record<string, string>>({});
-  const [packs, setPacks] = React.useState<Array<{ id: string; version: string; license: string; description: string; installed: boolean; enabled: boolean; size: number }>>([]);
+  const [packs, setPacks] = React.useState<Array<{ id: string; version: string; license: string; description: string; installed: boolean; enabled: boolean; pinned: boolean; size: number; bytes?: number }>>([]);
+  const [packsMeta, setPacksMeta] = React.useState<{ dir: string; max_bytes: number; auto_evict: boolean; auto_delete_on_disable: boolean; used: number; free: number } | null>(null);
+  const [packDir, setPackDir] = React.useState("");
+  const [maxGB, setMaxGB] = React.useState("20");
 
   const loadScopes = React.useCallback(async () => {
     try {
@@ -121,6 +124,8 @@ export default function OsintPage() {
     try {
       const r = await api.packsList();
       setPacks(r.packs ?? []);
+      setPacksMeta({ ...(r.settings ?? {}), used: r.usage?.bytes ?? 0, free: r.usage?.free_bytes ?? 0 } as never);
+      setPackDir((prev) => prev || r.settings?.dir || "");
     } catch {
       /* login required */
     }
@@ -213,6 +218,25 @@ export default function OsintPage() {
       if (action === "enable") await api.packEnable(id);
       if (action === "disable") await api.packDisable(id);
       if (action === "delete") await api.packDelete(id);
+      await loadPacks();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const togglePin = async (id: string, pinned: boolean) => {
+    try {
+      await api.packPin(id, pinned);
+      await loadPacks();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const savePackSettings = async () => {
+    try {
+      await api.packSettings({ dir: packDir, max_bytes: Math.max(1, Number(maxGB) || 20) * 1024 * 1024 * 1024 });
+      toast.success("팩 설정 저장");
       await loadPacks();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
@@ -430,12 +454,22 @@ export default function OsintPage() {
                     <Button size="sm" variant="outline" onClick={() => void packAction(pk.id, pk.enabled ? "disable" : "enable")}>
                       {pk.enabled ? "비활성화" : "활성화"}
                     </Button>
-                    <Button size="sm" variant="ghost" onClick={() => void packAction(pk.id, "delete")}>삭제</Button>
+                    <Button size="sm" variant="ghost" onClick={() => void togglePin(pk.id, !pk.pinned)}>{pk.pinned ? "고정됨" : "고정"}</Button>
+                    <Button size="sm" variant="ghost" onClick={() => void packAction(pk.id, "delete")} disabled={pk.enabled}>삭제</Button>
                   </>
                 )}
               </div>
             </div>
           ))}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-2 text-xs text-muted-foreground">
+            <span>저장 경로: <span className="font-mono">{packsMeta?.dir ?? "-"}</span></span>
+            <span>사용 {((packsMeta?.used ?? 0) / 1024 / 1024).toFixed(1)}MB / 여유 {((packsMeta?.free ?? 0) / 1024 / 1024 / 1024).toFixed(1)}GB</span>
+          </div>
+          <div className="flex flex-wrap items-end gap-2">
+            <Input className="w-72" value={packDir} onChange={(e) => setPackDir(e.target.value)} placeholder="저장 경로" />
+            <Input className="w-24" value={maxGB} onChange={(e) => setMaxGB(e.target.value.replace(/[^0-9]/g, ""))} placeholder="최대 GB" />
+            <Button size="sm" variant="outline" onClick={() => void savePackSettings()}>경로·예산 저장</Button>
+          </div>
           {packs.length === 0 ? <p className="text-sm text-muted-foreground">사용 가능한 팩이 없습니다.</p> : null}
         </CardContent>
       </Card>

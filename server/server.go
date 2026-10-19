@@ -799,6 +799,8 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/packs/{id}/enable", s.packToggle(true))
 	mux.HandleFunc("POST /api/packs/{id}/disable", s.packToggle(false))
 	mux.HandleFunc("DELETE /api/packs/{id}", s.packDelete)
+	mux.HandleFunc("PUT /api/packs/settings", s.packsSettings)
+	mux.HandleFunc("POST /api/packs/{id}/pin", s.packPin)
 	mux.HandleFunc("PATCH /api/osint/candidates/{id}", s.osintCandidateUpdate)
 	mux.HandleFunc("GET /api/osint/evidence/{sha}", s.osintEvidence)
 	mux.HandleFunc("DELETE /api/osint/faces/{id}", s.osintFaceDelete)
