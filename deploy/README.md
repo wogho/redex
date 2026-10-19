@@ -80,3 +80,21 @@ HTTP redirects to HTTPS; `/api/health` returns version `ko-9f8f91d`;
 unauthenticated `/api/stats` returns 401; invalid setup token returns 403.
 Chromium loaded the Korean setup form with three inputs and no page errors.
 The administrator password remains unset for the owner to choose on first visit.
+
+## Artifact offload (OneDrive)
+
+Heavy Redex artifacts are archived outside the host under `onedrive:redex`
+(`images/`, `source/`, `db/`, `artifacts/`, manifests). The host keeps only what
+the running deployment needs: the current image, the source tree, and the live
+PostgreSQL volume.
+
+```sh
+sudo ./deploy/offload-onedrive.sh   # save image + source + db dump, upload, verify, free local
+```
+
+Restore an image:
+
+```sh
+rclone copy onedrive:redex/images/redex-global-<tag>.tar.zst /tmp/
+zstd -d -c /tmp/redex-global-<tag>.tar.zst | docker load
+```
