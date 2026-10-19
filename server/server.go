@@ -793,6 +793,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/osint/providers", s.providersList)
 	mux.HandleFunc("PUT /api/osint/providers/{id}", s.providerSave)
 	mux.HandleFunc("POST /api/osint/providers/{id}/run", s.providerRun)
+	mux.HandleFunc("POST /api/osint/providers/{id}/consent", s.providerConsent)
 	mux.HandleFunc("GET /api/osint/graphml", s.osintGraphML)
 	mux.HandleFunc("GET /api/packs", s.packsList)
 	mux.HandleFunc("POST /api/packs/{id}/install", s.packInstall)

@@ -57,7 +57,7 @@ export default function OsintPage() {
   const [igUser, setIgUser] = React.useState("");
   const [igPass, setIgPass] = React.useState("");
   const [credFile, setCredFile] = React.useState<File | null>(null);
-  const [providers, setProviders] = React.useState<Array<{ id: string; name: string; category: string; fields: string[]; paid: boolean; docs: string; note?: string; configured: boolean; implemented: boolean }>>([]);
+  const [providers, setProviders] = React.useState<Array<{ id: string; name: string; category: string; fields: string[]; paid: boolean; docs: string; note?: string; configured: boolean; implemented: boolean; consent_required?: boolean; consent?: boolean }>>([]);
   const [providerVals, setProviderVals] = React.useState<Record<string, string>>({});
   const [providerInput, setProviderInput] = React.useState<Record<string, string>>({});
   const [packs, setPacks] = React.useState<Array<{ id: string; version: string; license: string; description: string; installed: boolean; enabled: boolean; pinned: boolean; consent_required?: boolean; consent?: boolean; size: number; bytes?: number }>>([]);
@@ -515,6 +515,9 @@ export default function OsintPage() {
                 <span className="text-xs text-muted-foreground">{pv.category}</span>
                 {pv.paid ? <Badge variant="outline">paid</Badge> : null}
                 <Badge variant={pv.configured ? "default" : "outline"}>{pv.configured ? "키 등록" : "키 없음"}</Badge>
+                {pv.consent_required ? (
+                  <Badge variant={pv.consent ? "default" : "destructive"}>{pv.consent ? "동의됨" : "동의 필요"}</Badge>
+                ) : null}
                 {pv.note ? <span className="text-xs text-muted-foreground">{pv.note}</span> : null}
               </div>
               <div className="mt-2 flex flex-wrap items-end gap-2">
@@ -535,7 +538,10 @@ export default function OsintPage() {
                   value={providerInput[pv.id] ?? ""}
                   onChange={(e) => setProviderInput({ ...providerInput, [pv.id]: e.target.value })}
                 />
-                <Button size="sm" onClick={() => void runProvider(pv.id)} disabled={!pv.implemented}>실행</Button>
+                {pv.consent_required && !pv.consent ? (
+                  <Button size="sm" variant="default" onClick={async () => { try { await api.providerConsent(pv.id); await loadProviders(); } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); } }}>동의</Button>
+                ) : null}
+                <Button size="sm" onClick={() => void runProvider(pv.id)} disabled={!pv.implemented || (pv.consent_required && !pv.consent)}>실행</Button>
               </div>
             </div>
           ))}

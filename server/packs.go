@@ -73,6 +73,7 @@ var defaultPackManifest = []packManifestEntry{
 		License: "MIT", Upstream: "https://github.com/projectdiscovery/nuclei-templates",
 		Description: "nuclei templates (projectdiscovery)",
 	},
+	{ID: "nvd_cve", Version: "2026.10.1", URL: "https://github.com/wogho/redex-packs/releases/download/packs-2026.10/nvd.tar.zst", SHA256: "b9308b297cb5be74643b39653b80a16d9376a2e768309cab63f69fddec1b87cf", Size: 86819995, License: "Public domain", Description: "NVD CVE feeds 2024-2026"},
 	{ID: "kev_epss", Version: "2026.10.1", URL: "https://github.com/wogho/redex-packs/releases/download/packs-2026.10/kev.tar.zst", SHA256: "d26632078538ea3d9bb2df7c8654ca35257da611a0ef844bf9e334fc1663873f", Size: 2923566, License: "Public domain", Description: "CISA KEV + EPSS"},
 	{ID: "seclists_curated", Version: "2026.10.1", URL: "https://github.com/wogho/redex-packs/releases/download/packs-2026.10/seclists.tar.zst", SHA256: "684480dfe2b15ca5258a28e26e17e8f32acb85c6242a1897e3bef442f7e9b11a", Size: 383615, License: "MIT", Description: "SecLists curated wordlists"},
 	{ID: "payloads_all_the_things", Version: "2026.10.1", URL: "https://github.com/wogho/redex-packs/releases/download/packs-2026.10/payloads.tar.zst", SHA256: "49f007cff964c15ceba756e5ffdef224a21a6b4be82e6d05559d66266d225e03", Size: 7843471, License: "MIT", Description: "PayloadsAllTheThings", Consent: true},

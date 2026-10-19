@@ -316,6 +316,7 @@ export const api = {
     get<{ providers: Array<{ id: string; name: string; category: string; fields: string[]; paid: boolean; docs: string; note?: string; configured: boolean; implemented: boolean }> }>("/osint/providers"),
   osintProviderSave: (id: string, creds: Record<string, string>) =>
     put<{ ok: boolean }>(`/osint/providers/${encodeURIComponent(id)}`, { creds }),
+  providerConsent: (id: string) => post<{ ok: boolean }>(`/osint/providers/${encodeURIComponent(id)}/consent`, { agree: true }),
   osintProviderRun: (id: string, input: string) =>
     post<{ count: number }>(`/osint/providers/${encodeURIComponent(id)}/run`, { input }),
   packsList: () =>
