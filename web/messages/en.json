@@ -182,7 +182,14 @@
       "traffic": "Traffic",
       "workspace": "Workspace",
       "verification": "Verification",
-      "policy": "Policy"
+      "policy": "Policy",
+      "attack": "ATT&CK",
+      "reports": "Reports",
+      "scope": "Engagement scope",
+      "osint": "OSINT",
+      "schedules": "Schedules",
+      "credentials": "Credentials",
+      "mode": "Mode"
     }
   },
   "notFound": {

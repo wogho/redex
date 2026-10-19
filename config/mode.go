@@ -21,6 +21,9 @@ const PolicyFileEnv = "REDEX_POLICY_FILE"
 // offensive mode. It is the "someone must look at this" switch.
 const RequireHumanEnv = "REDEX_REQUIRE_HUMAN"
 
+// AttackLayerEnv overrides the embedded ATT&CK offense layer path.
+const AttackLayerEnv = "REDEX_ATTACK_LAYER"
+
 // Offensive reports whether the process runs in offensive mode.
 //
 // 이 값은 프로세스 환경에서 매 호출 읽는다. 에이전트 시스템 프롬프트는 매 턴/매

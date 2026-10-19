@@ -182,7 +182,14 @@
       "traffic": "トラフィック",
       "workspace": "ワークスペース",
       "verification": "検証キュー",
-      "policy": "ポリシー"
+      "policy": "ポリシー",
+      "attack": "ATT&CK",
+      "reports": "レポート",
+      "scope": "交戦範囲",
+      "osint": "OSINT",
+      "schedules": "スケジュール",
+      "credentials": "資格情報",
+      "mode": "モード"
     }
   },
   "notFound": {

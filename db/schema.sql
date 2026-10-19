@@ -1397,3 +1397,16 @@ CREATE INDEX IF NOT EXISTS idx_notification_deliveries_batch
     ON notification_deliveries(batch_id) WHERE batch_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_notification_deliveries_channel
     ON notification_deliveries(channel_id, id DESC);
+
+-- 교전 범위(RoE): 허가 대상/기간/연락처를 감사 가능하게 기록한다.
+CREATE TABLE IF NOT EXISTS engagement_scope (
+    id         BIGSERIAL PRIMARY KEY,
+    name       TEXT NOT NULL DEFAULT '',
+    targets    TEXT NOT NULL DEFAULT '',
+    exclusions TEXT NOT NULL DEFAULT '',
+    contact    TEXT NOT NULL DEFAULT '',
+    starts_at  TEXT NOT NULL DEFAULT '',
+    ends_at    TEXT NOT NULL DEFAULT '',
+    notes      TEXT NOT NULL DEFAULT '',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

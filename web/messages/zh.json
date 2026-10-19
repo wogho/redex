@@ -182,7 +182,14 @@
       "traffic": "流量",
       "workspace": "工作空间",
       "verification": "验证队列",
-      "policy": "策略"
+      "policy": "策略",
+      "attack": "ATT&CK",
+      "reports": "报告",
+      "scope": "交战范围",
+      "osint": "OSINT",
+      "schedules": "调度",
+      "credentials": "凭据",
+      "mode": "模式"
     }
   },
   "notFound": {

@@ -277,6 +277,29 @@ export const api = {
   policyPut: (content: string) => put<{ ok: boolean; path: string }>("/policy", { content }),
   policyTest: (tool: string, command: string) =>
     post<{ blocked: boolean; reason: string }>("/policy/test", { tool, command }),
+  attackLayer: () =>
+    get<{
+      name: string;
+      total: number;
+      counts: Record<string, number>;
+      techniques: Array<{ techniqueID: string; tactic: string; comment?: string }>;
+    }>("/attack/layer"),
+  systemInfo: () =>
+    get<{
+      version: string;
+      mode: string;
+      offensive: boolean;
+      require_human: boolean;
+      language: string;
+      policy_path: string;
+      policy_configured: boolean;
+      policy_exists: boolean;
+      attack_layer_path: string;
+      attack_layer_ready: boolean;
+    }>("/system/info"),
+  scopeList: () => get<{ scopes: Array<Record<string, string>> }>("/scope"),
+  scopeCreate: (input: Record<string, string>) => post<unknown>("/scope", input),
+  scopeDelete: (id: string) => del<{ ok: boolean }>(`/scope/${encodeURIComponent(id)}`),
 
   // ---- auth ----
   authStatus: () => get<{ initialized: boolean; setup_token_required?: boolean }>("/auth/status"),

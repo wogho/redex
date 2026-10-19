@@ -151,6 +151,7 @@ COPY dist/${TARGETARCH}/redex /app/redex
 COPY start.sh /app/start.sh
 RUN chmod +x /app/redex /app/start.sh
 COPY skills/ /app/skills/
+COPY detections/attack/redex_offense_layer.json /app/attack/redex_offense_layer.json
 # data/(SQLite + jwt.key) 영속화 지점
 VOLUME ["/app/data"]
 EXPOSE 8787 8788

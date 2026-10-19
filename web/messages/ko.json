@@ -182,7 +182,14 @@
       "traffic": "트래픽",
       "workspace": "작업 공간",
       "verification": "검증 큐",
-      "policy": "정책"
+      "policy": "정책",
+      "attack": "ATT&CK",
+      "reports": "보고서",
+      "scope": "교전 범위",
+      "osint": "OSINT",
+      "schedules": "스케줄",
+      "credentials": "자격증명",
+      "mode": "모드"
     }
   },
   "notFound": {
