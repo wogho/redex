@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EmptyState } from "@/components/states";
 import { api } from "@/lib/api";
 
 type Candidate = {
@@ -438,8 +439,8 @@ export default function OsintPage() {
                 ))}
                 {rows.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-10 text-center text-sm text-muted-foreground">
-                      아직 수집된 후보가 없습니다.
+                    <td colSpan={5}>
+                      <EmptyState title="아직 수집된 후보가 없습니다" description="교전을 선택하고 수집기를 실행하세요." />
                     </td>
                   </tr>
                 ) : null}

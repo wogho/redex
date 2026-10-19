@@ -174,6 +174,9 @@ export default function VerificationPage() {
                       <Badge variant={STATUS_VARIANT[row.verify_status] ?? "outline"}>
                         {row.verify_status || "-"}
                       </Badge>
+                      {row.dedupe_key ? (
+                        <div className="mt-1 font-mono text-[10px] text-muted-foreground">cluster {row.dedupe_key.slice(0, 8)}</div>
+                      ) : null}
                       {row.reasons?.length ? (
                         <div className="mt-1 max-w-[240px] text-xs text-muted-foreground">{row.reasons[0]}</div>
                       ) : null}

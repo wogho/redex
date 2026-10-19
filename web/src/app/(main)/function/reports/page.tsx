@@ -7,6 +7,7 @@ import { FileTextIcon, RefreshCwIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState, ErrorState, LoadingState } from "@/components/states";
 import { api } from "@/lib/api";
 
 type Stats = {
@@ -20,13 +21,17 @@ export default function ReportsPage() {
   const [stats, setStats] = React.useState<Stats>({});
   const [tasks, setTasks] = React.useState<Array<{ id: string; name?: string; description?: string; status?: string }>>([]);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState("");
 
   const load = React.useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
       const [s, t] = await Promise.all([api.findingStats(), api.tasks()]);
       setStats(s as unknown as Stats);
       setTasks(t.tasks as Array<{ id: string; name?: string; description?: string; status?: string }>);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -71,6 +76,11 @@ export default function ReportsPage() {
         ))}
       </div>
 
+      {error ? <ErrorState message={error} onRetry={() => void load()} /> : null}
+      {loading && tasks.length === 0 ? <LoadingState /> : null}
+      {!loading && !error && tasks.length === 0 ? (
+        <EmptyState title="교전이 없습니다" description="태스크를 만들면 여기에 보고서 진입점이 생깁니다." />
+      ) : null}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base">교전({tasks.length})</CardTitle>
