@@ -16,6 +16,12 @@ FROM golang:1.26.3-bookworm AS kerbrute-build
 ARG TARGETARCH
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go install github.com/ropnop/kerbrute@v1.0.3
 
+# mitm6/pypykatz 의 네이티브 의존성(netifaces 등)은 빌드 스테이지에서 컴파일하고
+# 런타임 이미지에는 산출물만 복사한다(빌드 도구를 최종 이미지에 남기지 않음).
+FROM python:3.12-slim-bookworm AS pypi-build
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpcap-dev \
+    && pip install --no-cache-dir --prefix=/install mitm6 pypykatz
+
 FROM python:3.12-slim-bookworm
 ARG TARGETARCH
 # 상용 도구: ripgrep / curl / vim 에 더해 recon 에 자주 쓰는 도구 묶음(필요에 따라 추가·삭제).
@@ -107,10 +113,31 @@ RUN set -eux; \
     done; \
     impacket-secretsdump --help >/dev/null 2>&1 || true
 
+# ---------------------------------------------------------------------------
+# P1: C2 / 데이터 유출 / Windows 자격증명 수집
+# ---------------------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends rclone \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=pypi-build /install/lib/python3.12/site-packages/ /usr/local/lib/python3.12/site-packages/
+COPY --from=pypi-build /install/bin/ /usr/local/bin/
+RUN set -eux; \
+    case "${TARGETARCH:-amd64}" in \
+      amd64) A=amd64 ;; \
+      arm64) A=arm64 ;; \
+      *) echo "unsupported TARGETARCH ${TARGETARCH}"; exit 1 ;; \
+    esac; \
+    curl -fsSL -o /usr/local/bin/sliver-server "https://github.com/BishopFox/sliver/releases/download/v1.7.8/sliver-server_linux-${A}"; \
+    curl -fsSL -o /usr/local/bin/sliver "https://github.com/BishopFox/sliver/releases/download/v1.7.8/sliver-client_linux-${A}"; \
+    chmod +x /usr/local/bin/sliver-server /usr/local/bin/sliver; \
+    mkdir -p /opt/windows; \
+    curl -fsSL -o /opt/windows/LaZagne.exe "https://github.com/AlessandroZ/LaZagne/releases/download/v2.4.7/LaZagne.exe"; \
+    ls -lh /opt/windows
+
 # 빌드 시 도구 존재 확인(하나라도 없으면 이미지 빌드가 실패한다).
 RUN set -eux; \
     for b in smbclient rpcclient ldapsearch hashcat john psql mysql redis-cli aws \
              arjun certipy ldapdomaindump bloodhound-python jwt_tool kerbrute \
+             rclone mitm6 pypykatz sliver-server sliver \
              ffuf nuclei subfinder chisel nikto sqlmap hydra masscan whatweb gobuster impacket-secretsdump; do \
       command -v "$b"; \
     done

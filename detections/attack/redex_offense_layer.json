@@ -1,0 +1,292 @@
+{
+  "name": "Redex offense coverage",
+  "versions": {
+    "attack": "16",
+    "navigator": "4.9.0",
+    "layer": "4.5"
+  },
+  "domain": "enterprise-attack",
+  "description": "ATT&CK techniques Redex can execute from its shipped toolset.",
+  "sorting": 0,
+  "layout": {
+    "layout": "side",
+    "showID": true,
+    "showName": true
+  },
+  "hideDisabled": false,
+  "techniques": [
+    {
+      "techniqueID": "T1595",
+      "tactic": "reconnaissance",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "nmap / masscan active scanning",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1595.002",
+      "tactic": "reconnaissance",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "ffuf / gobuster / wfuzz content discovery",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1592",
+      "tactic": "reconnaissance",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "whatweb fingerprinting",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1590",
+      "tactic": "reconnaissance",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "subfinder / dnsutils",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1190",
+      "tactic": "initial-access",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "sqlmap / nuclei / commix web exploitation",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1078",
+      "tactic": "initial-access",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "valid accounts via hydra / kerbrute / creds",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1059",
+      "tactic": "execution",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "Bash / shell_open",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1047",
+      "tactic": "execution",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "impacket-wmiexec",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1053.005",
+      "tactic": "execution",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "impacket-atexec",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1505.003",
+      "tactic": "persistence",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "web shell written to target (manual)",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1558.001",
+      "tactic": "persistence",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "impacket-ticketer golden ticket",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1548",
+      "tactic": "privilege-escalation",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "linpeas / LES SUID-sudo review",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1068",
+      "tactic": "privilege-escalation",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "kernel exploit chains",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1644",
+      "tactic": "privilege-escalation",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "certipy ADCS ESC abuse",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1003.001",
+      "tactic": "credential-access",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "pypykatz LSASS parsing",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1003.003",
+      "tactic": "credential-access",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "impacket-secretsdump NTDS",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1110",
+      "tactic": "credential-access",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "hydra / kerbrute spraying",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1558.003",
+      "tactic": "credential-access",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "impacket-GetUserSPNs kerberoast",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1557.001",
+      "tactic": "credential-access",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "mitm6 + impacket-ntlmrelayx",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1555",
+      "tactic": "credential-access",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "LaZagne credential stores",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1087",
+      "tactic": "discovery",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "rpcclient / ldapsearch enumeration",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1018",
+      "tactic": "discovery",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "nmap host discovery",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1069.002",
+      "tactic": "discovery",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "bloodhound / ldapdomaindump",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1021.002",
+      "tactic": "lateral-movement",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "impacket-psexec/smbexec",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1021.004",
+      "tactic": "lateral-movement",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "ssh pivot",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1550.002",
+      "tactic": "lateral-movement",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "pass-the-hash",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1071",
+      "tactic": "command-and-control",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "sliver C2 / HTTPS channels",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1095",
+      "tactic": "command-and-control",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "sliver non-application protocol",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1573",
+      "tactic": "command-and-control",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "sliver encrypted channel",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1570",
+      "tactic": "command-and-control",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "lateral tool transfer / chisel, ligolo",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1567.002",
+      "tactic": "exfiltration",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "rclone to cloud storage",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1048",
+      "tactic": "exfiltration",
+      "score": 100,
+      "color": "#e11d2e",
+      "comment": "alternative protocol exfil test",
+      "enabled": true
+    }
+  ],
+  "gradient": {
+    "colors": [
+      "#ffe3e6",
+      "#e11d2e"
+    ],
+    "minValue": 0,
+    "maxValue": 100
+  },
+  "legendItems": [
+    {
+      "label": "executable via shipped tools",
+      "color": "#e11d2e"
+    }
+  ],
+  "showTacticRowBackground": true,
+  "tacticRowBackground": "#0b0b0f",
+  "selectTechniquesAcrossTactics": true
+}

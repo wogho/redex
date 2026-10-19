@@ -97,6 +97,44 @@ flowchart LR
   F --> REP["Report<br/>Markdown · CSV · JSON"]
 ```
 
+### MITRE ATT&CK coverage (offense)
+
+The shipped toolset is mapped to ATT&CK Enterprise per tactic. This is **execution coverage** (what the agents can actually run), not detection coverage — the detection layer under `detections/` is a separate artifact.
+
+| Tactic | Coverage | Representative techniques |
+|---|---|---|
+| Reconnaissance | ✅ | T1595, T1592, T1590 |
+| Initial Access | △ | T1190, T1078 |
+| Execution | △ | T1059, T1047, T1053.005 |
+| Persistence | △ | T1505.003, T1558.001 |
+| Privilege Escalation | ✅ | T1548, T1068, T1644 |
+| Defense Evasion | ❌ | — |
+| Credential Access | ✅ | T1003.001, T1003.003, T1110, T1558.003, T1557.001, T1555 |
+| Discovery | ✅ | T1087, T1018, T1069.002 |
+| Lateral Movement | △ | T1021.002, T1021.004, T1550.002 |
+| Collection | ❌ | — |
+| Command & Control | △ | T1071, T1095, T1573, T1570 |
+| Exfiltration | △ | T1567.002, T1048 |
+| Impact | ❌ (deliberate) | — |
+
+Full matrix, gaps and rationale: [`docs/attack-coverage.md`](docs/attack-coverage.md). Machine-readable offense layer for ATT&CK Navigator: [`detections/attack/redex_offense_layer.json`](detections/attack/redex_offense_layer.json) (regenerate with `python3 scripts/gen_offense_layer.py`).
+
+#### Added in P1 (AD / Windows / C2 / exfiltration)
+
+| Tool | ATT&CK techniques | Use |
+|---|---|---|
+| **Sliver** (server + client) | T1071, T1095, T1573, T1570 | C2 channel, implant operation, pivoting, tool transfer |
+| **rclone** | T1567.002, T1048 | exfiltration to cloud / remote storage |
+| **LaZagne** (Windows) | T1555, T1552.001 | browser/mail/DB credential stores |
+| **pypykatz** | T1003.001 | offline LSASS dump parsing |
+| **mitm6** | T1557.001 | DHCPv6/DNS adversary-in-the-middle, NTLM relay chain |
+| **impacket** (wrappers) | T1021.002, T1550.002, T1003.003 | SMB/WMI execution, pass-the-hash, NTDS |
+| **certipy-ad** | T1644, T1558 | ADCS ESC abuse, certificate abuse |
+| **kerbrute** | T1110, T1087.002 | user enumeration / password spraying |
+| **bloodhound** | T1069.002, T1087.002 | attack-path collection |
+
+Not shipped on purpose: Impact techniques (ransomware/wiper/DoS), deep defense evasion (AMSI/ETW/rootkits), and phishing infrastructure. NetExec and evil-winrm are also omitted because their arm64 Python/Ruby builds fail in this base image (impacket wrappers cover the same actions).
+
 ### Finding verification gate (P0)
 
 Every `report_finding` call is checked before it is written (`verify` package):
