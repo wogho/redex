@@ -21,7 +21,7 @@ services:
         max-file: "3"
 
   redex:
-    image: redex-global:4caad68
+    image: redex-global:19fc0f1
     build:
       context: .
     depends_on:
@@ -32,12 +32,14 @@ services:
       REDEX_SETUP_TOKEN: ${REDEX_SETUP_TOKEN:?Set REDEX_SETUP_TOKEN in .env}
       REDEX_LANG: ko
       REDEX_MODE: offensive
+      REDEX_POLICY_FILE: /app/config/policy.json
     command: ["-addr", ":8787", "-proxy", "127.0.0.1:8788"]
     ports:
       - "127.0.0.1:8787:8787"
     volumes:
       - ./data:/app/data
       - ./skills:/app/skills
+      - ./config:/app/config
       - ./.secrets/jwt.key:/app/jwt.key:ro
     healthcheck:
       test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8787/api/health"]

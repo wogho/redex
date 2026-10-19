@@ -180,7 +180,9 @@
       "tasks": "タスク",
       "tools": "ツール",
       "traffic": "トラフィック",
-      "workspace": "ワークスペース"
+      "workspace": "ワークスペース",
+      "verification": "検証キュー",
+      "policy": "ポリシー"
     }
   },
   "notFound": {
@@ -3760,5 +3762,43 @@
       "name": "脆弱性の再検証",
       "description": "脆弱性の詳細から手動で開始し、元の証拠を読み取って、独立した再検証の結論を保存します。"
     }
+  },
+  "verification": {
+    "title": "検証キュー",
+    "desc": "検証ゲートを通過した検出の信頼度と証拠状態を確認します。",
+    "refresh": "更新",
+    "evidence_backed": "証拠あり",
+    "unverified": "未検証",
+    "duplicate": "重複",
+    "status": "状態",
+    "status_all": "すべての状態",
+    "min_confidence": "最小信頼度",
+    "name": "検出",
+    "task": "タスク",
+    "severity": "深刻度",
+    "confidence": "信頼度",
+    "open": "開く",
+    "empty": "検証済みの検出はまだありません。"
+  },
+  "policyPage": {
+    "title": "運用ポリシー",
+    "desc": "攻撃モードでもすべてのツール呼び出しの前に適用される拒否/許可ルールです。",
+    "reload": "再読み込み",
+    "save": "保存",
+    "saved": "ポリシーを保存して適用しました",
+    "path": "ファイルパス",
+    "configured": "設定済み",
+    "not_configured": "REDEX_POLICY_FILE が未設定です",
+    "file_exists": "ファイルあり",
+    "file_missing": "ファイルなし",
+    "content": "ポリシー JSON",
+    "content_desc": "deny / allow は '<tool>\\n<command>' に一致する RE2 正規表現。deny_tools はツール名で遮断します。",
+    "test": "呼び出しテスト",
+    "test_desc": "現在のポリシーでツール呼び出しを試行します。",
+    "tool": "ツール",
+    "command": "コマンド",
+    "run": "実行",
+    "blocked": "ブロック",
+    "allowed": "許可"
   }
 }

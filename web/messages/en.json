@@ -180,7 +180,9 @@
       "tasks": "Tasks",
       "tools": "Tools",
       "traffic": "Traffic",
-      "workspace": "Workspace"
+      "workspace": "Workspace",
+      "verification": "Verification",
+      "policy": "Policy"
     }
   },
   "notFound": {
@@ -3760,5 +3762,43 @@
       "name": "Vulnerability Retest",
       "description": "Launched manually from a finding's detail view; reads the original evidence and saves an independent retest conclusion."
     }
+  },
+  "verification": {
+    "title": "Verification queue",
+    "desc": "Findings that passed through the verification gate, with confidence and evidence status.",
+    "refresh": "Refresh",
+    "evidence_backed": "Evidence-backed",
+    "unverified": "Unverified",
+    "duplicate": "Duplicate",
+    "status": "Status",
+    "status_all": "All statuses",
+    "min_confidence": "Min confidence",
+    "name": "Finding",
+    "task": "Task",
+    "severity": "Severity",
+    "confidence": "Confidence",
+    "open": "Open",
+    "empty": "No gated findings yet."
+  },
+  "policyPage": {
+    "title": "Operator policy",
+    "desc": "Deny/allow rules enforced before every tool call, even in offensive mode.",
+    "reload": "Reload",
+    "save": "Save",
+    "saved": "Policy saved and applied",
+    "path": "File path",
+    "configured": "Configured",
+    "not_configured": "REDEX_POLICY_FILE is not set",
+    "file_exists": "File exists",
+    "file_missing": "File missing",
+    "content": "Policy JSON",
+    "content_desc": "deny / allow are RE2 regexes matched against '<tool>\\n<command>'. deny_tools blocks by tool name.",
+    "test": "Test a call",
+    "test_desc": "Dry-run the current policy against a tool call.",
+    "tool": "Tool",
+    "command": "Command",
+    "run": "Run",
+    "blocked": "Blocked",
+    "allowed": "Allowed"
   }
 }

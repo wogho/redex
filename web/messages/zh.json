@@ -180,7 +180,9 @@
       "tasks": "任务",
       "tools": "工具",
       "traffic": "流量",
-      "workspace": "工作空间"
+      "workspace": "工作空间",
+      "verification": "验证队列",
+      "policy": "策略"
     }
   },
   "notFound": {
@@ -3760,5 +3762,43 @@
       "name": "漏洞复测",
       "description": "从漏洞详情手动启动，读取原证据并保存独立复测结论。"
     }
+  },
+  "verification": {
+    "title": "验证队列",
+    "desc": "查看通过验证门禁的发现的置信度与证据状态。",
+    "refresh": "刷新",
+    "evidence_backed": "证据充分",
+    "unverified": "未验证",
+    "duplicate": "重复",
+    "status": "状态",
+    "status_all": "全部状态",
+    "min_confidence": "最低置信度",
+    "name": "漏洞",
+    "task": "任务",
+    "severity": "严重度",
+    "confidence": "置信度",
+    "open": "打开",
+    "empty": "暂无通过门禁的发现。"
+  },
+  "policyPage": {
+    "title": "运营策略",
+    "desc": "即使在攻击模式下，也在每次工具调用前执行的拒绝/允许规则。",
+    "reload": "重新加载",
+    "save": "保存",
+    "saved": "策略已保存并生效",
+    "path": "文件路径",
+    "configured": "已配置",
+    "not_configured": "未设置 REDEX_POLICY_FILE",
+    "file_exists": "文件存在",
+    "file_missing": "文件不存在",
+    "content": "策略 JSON",
+    "content_desc": "deny / allow 是匹配 '<tool>\\n<command>' 的 RE2 正则；deny_tools 按工具名拦截。",
+    "test": "测试调用",
+    "test_desc": "用当前策略模拟评估一次工具调用。",
+    "tool": "工具",
+    "command": "命令",
+    "run": "运行",
+    "blocked": "已拦截",
+    "allowed": "已允许"
   }
 }

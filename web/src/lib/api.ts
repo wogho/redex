@@ -244,9 +244,39 @@ function interceptPageQuery(page: number, size: number, filter: InterceptApprova
   return query.toString();
 }
 
+export interface VerificationFinding {
+  finding_id: string;
+  task_id?: number;
+  task_description?: string;
+  name: string;
+  vulnclass: string;
+  severity: string;
+  status: string;
+  confidence: number;
+  verify_status: string;
+  dedupe_key?: string;
+  reasons?: string[];
+  created_at: string;
+}
+
+export interface PolicyView {
+  path: string;
+  configured: boolean;
+  exists: boolean;
+  content: string;
+  error?: string;
+}
+
 export const api = {
   // 后端应用版本号（release 时由 ldflags 注入，默认 "dev"）。
   health: () => get<{ ok: boolean; service: string; version: string }>("/health"),
+  verificationFindings: (q: URLSearchParams) =>
+    get<{ findings: VerificationFinding[] }>(`/verification/findings?${q.toString()}`),
+  verificationSummary: () => get<{ counts: Record<string, number> }>("/verification/summary"),
+  policyGet: () => get<PolicyView>("/policy"),
+  policyPut: (content: string) => put<{ ok: boolean; path: string }>("/policy", { content }),
+  policyTest: (tool: string, command: string) =>
+    post<{ blocked: boolean; reason: string }>("/policy/test", { tool, command }),
 
   // ---- auth ----
   authStatus: () => get<{ initialized: boolean; setup_token_required?: boolean }>("/auth/status"),

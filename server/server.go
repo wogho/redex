@@ -20,6 +20,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/Autumn-27/norma/llm"
+	actool "github.com/Autumn-27/norma/tool"
+	"github.com/Autumn-27/norma/transcript"
 	"github.com/wogho/redex/agent"
 	"github.com/wogho/redex/config"
 	"github.com/wogho/redex/db"
@@ -29,9 +32,6 @@ import (
 	"github.com/wogho/redex/notify"
 	"github.com/wogho/redex/report"
 	"github.com/wogho/redex/traffic"
-	"github.com/Autumn-27/norma/llm"
-	actool "github.com/Autumn-27/norma/tool"
-	"github.com/Autumn-27/norma/transcript"
 )
 
 // BuildVersion is the backend application version, injected from cmd/redex at
@@ -768,6 +768,11 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/auth/change-password", s.authChangePassword)
 
 	mux.HandleFunc("GET /api/health", s.health)
+	mux.HandleFunc("GET /api/verification/findings", s.verificationFindings)
+	mux.HandleFunc("GET /api/verification/summary", s.verificationSummary)
+	mux.HandleFunc("GET /api/policy", s.policyGet)
+	mux.HandleFunc("PUT /api/policy", s.policyPut)
+	mux.HandleFunc("POST /api/policy/test", s.policyTest)
 	mux.HandleFunc("GET /api/stats", s.stats)
 	mux.HandleFunc("GET /api/logs", s.getLogs)
 	mux.HandleFunc("GET /api/logs/history", s.getLogsHistory)

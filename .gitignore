@@ -83,3 +83,6 @@ secrets.env
 # redex.exe 를 포그라운드로 띄울 때 리다이렉트한 런타임 로그
 /redex.out.log
 /redex.err.log
+
+# deployment-local operator policy (mounted at runtime)
+/config/policy.json

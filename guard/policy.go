@@ -135,3 +135,26 @@ func (p *compiledPolicy) Check(tool, cmd string) (bool, string) {
 func checkToolPolicy(tool, cmd string) (bool, string) {
 	return activePolicy().Check(tool, cmd)
 }
+
+// ValidatePolicy parses and compiles a policy document without installing it.
+// The policy editor uses it for save-time validation.
+func ValidatePolicy(raw []byte) error {
+	var p Policy
+	if err := json.Unmarshal(raw, &p); err != nil {
+		return fmt.Errorf("policy parse: %w", err)
+	}
+	for _, expr := range p.Deny {
+		if _, err := regexp.Compile(expr); err != nil {
+			return fmt.Errorf("deny %q: %w", expr, err)
+		}
+	}
+	for _, expr := range p.Allow {
+		if _, err := regexp.Compile(expr); err != nil {
+			return fmt.Errorf("allow %q: %w", expr, err)
+		}
+	}
+	return nil
+}
+
+// Check evaluates a tool call against the installed policy.
+func Check(tool, cmd string) (bool, string) { return checkToolPolicy(tool, cmd) }

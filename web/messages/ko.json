@@ -180,7 +180,9 @@
       "tasks": "작업",
       "tools": "도구",
       "traffic": "트래픽",
-      "workspace": "작업 공간"
+      "workspace": "작업 공간",
+      "verification": "검증 큐",
+      "policy": "정책"
     }
   },
   "notFound": {
@@ -3760,5 +3762,43 @@
       "name": "취약점 재검증",
       "description": "취약점 상세에서 수동으로 시작해, 원래 증거를 읽고 독립적인 재검증 결론을 저장합니다."
     }
+  },
+  "verification": {
+    "title": "검증 큐",
+    "desc": "검증 게이트를 통과한 발견의 신뢰도와 증거 상태를 확인합니다.",
+    "refresh": "새로고침",
+    "evidence_backed": "증거 확보",
+    "unverified": "미검증",
+    "duplicate": "중복",
+    "status": "상태",
+    "status_all": "전체 상태",
+    "min_confidence": "최소 신뢰도",
+    "name": "취약점",
+    "task": "작업",
+    "severity": "심각도",
+    "confidence": "신뢰도",
+    "open": "열기",
+    "empty": "아직 게이트를 통과한 발견이 없습니다."
+  },
+  "policyPage": {
+    "title": "운영 정책",
+    "desc": "공격형 모드에서도 모든 도구 호출 전에 적용되는 차단/허용 규칙입니다.",
+    "reload": "다시 불러오기",
+    "save": "저장",
+    "saved": "정책을 저장하고 적용했습니다",
+    "path": "파일 경로",
+    "configured": "설정됨",
+    "not_configured": "REDEX_POLICY_FILE 이 설정되지 않았습니다",
+    "file_exists": "파일 있음",
+    "file_missing": "파일 없음",
+    "content": "정책 JSON",
+    "content_desc": "deny / allow 는 '<tool>\\n<command>' 에 매칭되는 RE2 정규식입니다. deny_tools 는 도구 이름으로 차단합니다.",
+    "test": "호출 테스트",
+    "test_desc": "현재 정책으로 도구 호출을 모의 평가합니다.",
+    "tool": "도구",
+    "command": "명령",
+    "run": "실행",
+    "blocked": "차단됨",
+    "allowed": "허용됨"
   }
 }

@@ -180,7 +180,9 @@
       "tasks": "Tareas",
       "tools": "Herramientas",
       "traffic": "Tráfico",
-      "workspace": "Espacio de trabajo"
+      "workspace": "Espacio de trabajo",
+      "verification": "Verificación",
+      "policy": "Política"
     }
   },
   "notFound": {
@@ -3760,5 +3762,43 @@
       "name": "Reverificación de vulnerabilidad",
       "description": "Se inicia manualmente desde el detalle de un hallazgo; lee la evidencia original y guarda una conclusión de reverificación independiente."
     }
+  },
+  "verification": {
+    "title": "Cola de verificación",
+    "desc": "Hallazgos que pasaron la puerta de verificación, con confianza y estado de evidencia.",
+    "refresh": "Actualizar",
+    "evidence_backed": "Con evidencia",
+    "unverified": "Sin verificar",
+    "duplicate": "Duplicado",
+    "status": "Estado",
+    "status_all": "Todos los estados",
+    "min_confidence": "Confianza mínima",
+    "name": "Hallazgo",
+    "task": "Tarea",
+    "severity": "Severidad",
+    "confidence": "Confianza",
+    "open": "Abrir",
+    "empty": "Aún no hay hallazgos verificados."
+  },
+  "policyPage": {
+    "title": "Política del operador",
+    "desc": "Reglas de denegación/permiso aplicadas antes de cada llamada, incluso en modo ofensivo.",
+    "reload": "Recargar",
+    "save": "Guardar",
+    "saved": "Política guardada y aplicada",
+    "path": "Ruta del archivo",
+    "configured": "Configurada",
+    "not_configured": "REDEX_POLICY_FILE no está definido",
+    "file_exists": "El archivo existe",
+    "file_missing": "Falta el archivo",
+    "content": "JSON de política",
+    "content_desc": "deny / allow son regex RE2 sobre '<tool>\\n<command>'. deny_tools bloquea por nombre de herramienta.",
+    "test": "Probar una llamada",
+    "test_desc": "Evalúa la política actual contra una llamada de herramienta.",
+    "tool": "Herramienta",
+    "command": "Comando",
+    "run": "Ejecutar",
+    "blocked": "Bloqueado",
+    "allowed": "Permitido"
   }
 }
