@@ -89,7 +89,7 @@ export const sidebarItems: NavGroup[] = [
       { id: "workspace", title: "工作空间", url: "/function/workspace", icon: FolderOpen },
       { id: "reports", title: "报告", url: "/function/reports", icon: FileText },
       { id: "scope", title: "交战范围", url: "/function/scope", icon: FileCheck },
-      { id: "osint", title: "OSINT", url: "/function/osint", icon: Search, badge: "soon" },
+      { id: "osint", title: "OSINT", url: "/function/osint", icon: Search },
       { id: "schedules", title: "调度", url: "/function/schedules", icon: CalendarClock, badge: "soon" },
       { id: "credentials", title: "凭据", url: "/function/credentials", icon: KeyRound, badge: "soon" },
     ],

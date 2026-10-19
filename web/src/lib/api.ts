@@ -129,7 +129,7 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const r = await fetch(`/api${path}`, {
     ...init,
     headers: {
-      ...(init?.body ? { "Content-Type": "application/json" } : {}),
+      ...(init?.body && !(init.body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers as Record<string, string> | undefined),
     },
@@ -298,8 +298,28 @@ export const api = {
       attack_layer_ready: boolean;
     }>("/system/info"),
   scopeList: () => get<{ scopes: Array<Record<string, string>> }>("/scope"),
-  scopeCreate: (input: Record<string, string>) => post<unknown>("/scope", input),
+  scopeCreate: (input: unknown) => post<unknown>("/scope", input),
   scopeDelete: (id: string) => del<{ ok: boolean }>(`/scope/${encodeURIComponent(id)}`),
+  scopePersonOsint: (id: string, allowed: boolean) =>
+    post<{ ok: boolean }>(`/scope/${encodeURIComponent(id)}/person-osint`, { allowed }),
+  osintRun: (body: { engagement_id: number; kind: string; value: string; limit?: number }) =>
+    post<{ count: number; candidates: Array<Record<string, unknown>> }>("/osint/run", body),
+  osintCandidates: (q: URLSearchParams) =>
+    get<{ candidates: Array<Record<string, unknown>> }>(`/osint/candidates?${q.toString()}`),
+  osintFaceIndex: (file: File, label: string) => {
+    const fd = new FormData();
+    fd.append("image", file);
+    fd.append("label", label);
+    return http<{ id: number; label: string; faces: number }>("/osint/face/index", { method: "POST", body: fd });
+  },
+  osintFaceSearch: (file: File) => {
+    const fd = new FormData();
+    fd.append("image", file);
+    return http<{ matches: Array<{ id: string; label: string; score: number }> }>("/osint/face/search", {
+      method: "POST",
+      body: fd,
+    });
+  },
 
   // ---- auth ----
   authStatus: () => get<{ initialized: boolean; setup_token_required?: boolean }>("/auth/status"),

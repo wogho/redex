@@ -133,11 +133,27 @@ RUN set -eux; \
     curl -fsSL -o /opt/windows/LaZagne.exe "https://github.com/AlessandroZ/LaZagne/releases/download/v2.4.7/LaZagne.exe"; \
     ls -lh /opt/windows
 
+# ---------------------------------------------------------------------------
+# OSINT: 공개 정보 수집(maigret/holehe/ghunt/phoneinfoga/instaloader) + 로컬 얼굴 임베딩(InsightFace)
+# ---------------------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir maigret holehe ghunt onnxruntime opencv-python-headless insightface instaloader
+RUN set -eux; \
+    case "${TARGETARCH:-amd64}" in amd64) A=amd64 ;; arm64) A=arm64 ;; *) exit 1 ;; esac; \
+    curl -fsSL -o /tmp/phoneinfoga.tgz "https://github.com/sundowndev/phoneinfoga/releases/download/v2.11.0/phoneinfoga_Linux_${A}.tar.gz"; \
+    tar -xzf /tmp/phoneinfoga.tgz -C /usr/local/bin phoneinfoga; \
+    rm -f /tmp/phoneinfoga.tgz; \
+    phoneinfoga version
+COPY osint/ /app/osint/
+# buffalo_l 모델을 빌드 시점에 받아 런타임 네트워크 의존을 없앤다.
+RUN python3 -c "from insightface.app import FaceAnalysis; FaceAnalysis(name='buffalo_l', providers=['CPUExecutionProvider']).prepare(ctx_id=-1, det_size=(640,640))"
+
 # 빌드 시 도구 존재 확인(하나라도 없으면 이미지 빌드가 실패한다).
 RUN set -eux; \
     for b in smbclient rpcclient ldapsearch hashcat john psql mysql redis-cli aws \
              arjun certipy ldapdomaindump bloodhound-python jwt_tool kerbrute \
-             rclone mitm6 pypykatz sliver-server sliver \
+             rclone mitm6 pypykatz sliver-server sliver maigret holehe ghunt phoneinfoga instaloader \
              ffuf nuclei subfinder chisel nikto sqlmap hydra masscan whatweb gobuster impacket-secretsdump; do \
       command -v "$b"; \
     done

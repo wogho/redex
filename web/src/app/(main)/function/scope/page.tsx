@@ -21,6 +21,7 @@ type Scope = {
   starts_at: string;
   ends_at: string;
   notes: string;
+  person_osint_allowed?: boolean;
 };
 
 const EMPTY: Scope = { id: "", name: "", targets: "", exclusions: "", contact: "", starts_at: "", ends_at: "", notes: "" };
@@ -53,6 +54,15 @@ export default function ScopePage() {
       await api.scopeCreate(form);
       setForm(EMPTY);
       toast.success("교전 범위를 저장했습니다");
+      await load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const toggleOsint = async (row: Scope) => {
+    try {
+      await api.scopePersonOsint(row.id, !row.person_osint_allowed);
       await load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
@@ -155,6 +165,11 @@ export default function ScopePage() {
                 <pre className="whitespace-pre-wrap font-mono text-xs">{row.exclusions || "-"}</pre>
               </div>
               {row.notes ? <div className="md:col-span-2 text-muted-foreground">{row.notes}</div> : null}
+              <div className="md:col-span-2">
+                <Button variant={row.person_osint_allowed ? "default" : "outline"} size="sm" onClick={() => void toggleOsint(row)}>
+                  {row.person_osint_allowed ? "인물 조사 허용됨" : "인물 조사 미허용"}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}

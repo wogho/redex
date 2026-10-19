@@ -1410,3 +1410,28 @@ CREATE TABLE IF NOT EXISTS engagement_scope (
     notes      TEXT NOT NULL DEFAULT '',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- OSINT: 후보 리드와 얼굴 임베딩. 후보는 finding 이 아니며 검증 전에는 unverified.
+CREATE TABLE IF NOT EXISTS osint_candidate (
+    id BIGSERIAL PRIMARY KEY,
+    engagement_id BIGINT REFERENCES engagement_scope(id) ON DELETE SET NULL,
+    kind TEXT NOT NULL DEFAULT '',
+    value TEXT NOT NULL DEFAULT '',
+    source TEXT NOT NULL DEFAULT '',
+    detail TEXT NOT NULL DEFAULT '',
+    evidence TEXT NOT NULL DEFAULT '',
+    confidence INT NOT NULL DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'unverified',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_osint_candidate_eng ON osint_candidate(engagement_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS osint_face (
+    id BIGSERIAL PRIMARY KEY,
+    label TEXT NOT NULL DEFAULT '',
+    source TEXT NOT NULL DEFAULT '',
+    embedding JSONB NOT NULL DEFAULT '[]',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE engagement_scope ADD COLUMN IF NOT EXISTS person_osint_allowed BOOLEAN NOT NULL DEFAULT false;

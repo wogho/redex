@@ -7,21 +7,22 @@ import (
 
 // EngagementScope is the auditable authorization record (RoE) for an engagement.
 type EngagementScope struct {
-	ID         int64     `json:"id,string"`
-	Name       string    `json:"name"`
-	Targets    string    `json:"targets"`
-	Exclusions string    `json:"exclusions"`
-	Contact    string    `json:"contact"`
-	StartsAt   string    `json:"starts_at"`
-	EndsAt     string    `json:"ends_at"`
-	Notes      string    `json:"notes"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID          int64     `json:"id,string"`
+	Name        string    `json:"name"`
+	Targets     string    `json:"targets"`
+	Exclusions  string    `json:"exclusions"`
+	Contact     string    `json:"contact"`
+	StartsAt    string    `json:"starts_at"`
+	EndsAt      string    `json:"ends_at"`
+	Notes       string    `json:"notes"`
+	PersonOSINT bool      `json:"person_osint_allowed"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
-const engagementScopeCols = `id, name, targets, exclusions, contact, starts_at, ends_at, notes, created_at`
+const engagementScopeCols = `id, name, targets, exclusions, contact, starts_at, ends_at, notes, person_osint_allowed, created_at`
 
 func scanEngagementScope(row interface{ Scan(...any) error }, v *EngagementScope) error {
-	return row.Scan(&v.ID, &v.Name, &v.Targets, &v.Exclusions, &v.Contact, &v.StartsAt, &v.EndsAt, &v.Notes, &v.CreatedAt)
+	return row.Scan(&v.ID, &v.Name, &v.Targets, &v.Exclusions, &v.Contact, &v.StartsAt, &v.EndsAt, &v.Notes, &v.PersonOSINT, &v.CreatedAt)
 }
 
 func (d *DB) ListEngagementScopes(ctx context.Context) ([]*EngagementScope, error) {
