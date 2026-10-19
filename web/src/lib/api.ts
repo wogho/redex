@@ -334,6 +334,7 @@ export const api = {
     fd.append("file", file);
     return http<{ ok: boolean; installed: string[] }>("/packs/import", { method: "POST", body: fd });
   },
+  packConsent: (id: string) => post<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}/consent`, { agree: true }),
   packPin: (id: string, pinned: boolean) => post<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}/pin`, { pinned }),
   packSettings: (body: { dir?: string; max_bytes?: number; auto_evict?: boolean; auto_delete_on_disable?: boolean }) =>
     put<{ ok: boolean }>("/packs/settings", body),

@@ -26,6 +26,7 @@ type packManifestEntry struct {
 	License     string `json:"license"`
 	Description string `json:"description"`
 	Upstream    string `json:"upstream"`
+	Consent     bool   `json:"consent_required"`
 }
 
 type packState struct {
@@ -33,6 +34,7 @@ type packState struct {
 	SHA256      string    `json:"sha256"`
 	Enabled     bool      `json:"enabled"`
 	Pinned      bool      `json:"pinned"`
+	Consent     bool      `json:"consent"`
 	Bytes       int64     `json:"bytes"`
 	InstalledAt time.Time `json:"installed_at"`
 	LastUsedAt  time.Time `json:"last_used_at"`
@@ -70,6 +72,10 @@ var defaultPackManifest = []packManifestEntry{
 		License: "MIT", Upstream: "https://github.com/projectdiscovery/nuclei-templates",
 		Description: "nuclei templates (projectdiscovery)",
 	},
+	{ID: "kev_epss", Version: "2026.10.1", URL: "https://github.com/wogho/redex-packs/releases/download/packs-2026.10/kev.tar.zst", SHA256: "d26632078538ea3d9bb2df7c8654ca35257da611a0ef844bf9e334fc1663873f", Size: 2923566, License: "Public domain", Description: "CISA KEV + EPSS"},
+	{ID: "seclists_curated", Version: "2026.10.1", URL: "https://github.com/wogho/redex-packs/releases/download/packs-2026.10/seclists.tar.zst", SHA256: "684480dfe2b15ca5258a28e26e17e8f32acb85c6242a1897e3bef442f7e9b11a", Size: 383615, License: "MIT", Description: "SecLists curated wordlists"},
+	{ID: "payloads_all_the_things", Version: "2026.10.1", URL: "https://github.com/wogho/redex-packs/releases/download/packs-2026.10/payloads.tar.zst", SHA256: "49f007cff964c15ceba756e5ffdef224a21a6b4be82e6d05559d66266d225e03", Size: 7843471, License: "MIT", Description: "PayloadsAllTheThings", Consent: true},
+	{ID: "fuzzdb", Version: "2026.10.1", URL: "https://github.com/wogho/redex-packs/releases/download/packs-2026.10/fuzzdb.tar.zst", SHA256: "5c0c5b3ad30a3646f980c1c3e472f18178eba6667830039be7b8e0c2332c59fa", Size: 5004124, License: "Apache/CC", Description: "fuzzdb dictionaries", Consent: true},
 }
 
 func (s *Server) packRoot() string {
@@ -218,12 +224,13 @@ func (s *Server) packsList(w http.ResponseWriter, _ *http.Request) {
 		v := map[string]any{
 			"id": m.ID, "version": m.Version, "license": m.License,
 			"description": m.Description, "size": m.Size,
-			"installed": false, "enabled": false, "pinned": false,
+			"installed": false, "enabled": false, "pinned": false, "consent_required": m.Consent, "consent": false,
 		}
 		if ps, ok := reg.Packs[m.ID]; ok {
 			v["installed"] = true
 			v["enabled"] = ps.Enabled
 			v["pinned"] = ps.Pinned
+			v["consent"] = ps.Consent
 			v["installed_at"] = ps.InstalledAt
 			v["last_used_at"] = ps.LastUsedAt
 			v["bytes"] = ps.Bytes
@@ -347,6 +354,14 @@ func (s *Server) packToggle(enabled bool) http.HandlerFunc {
 			writeErr(w, 400, "pack is not installed")
 			return
 		}
+		if enabled {
+			for _, m := range defaultPackManifest {
+				if m.ID == id && m.Consent && !ps.Consent {
+					writeErr(w, 403, "이 팩은 동의가 필요합니다. /api/packs/{id}/consent 로 동의 후 활성화하세요.")
+					return
+				}
+			}
+		}
 		ps.Enabled = enabled
 		ps.LastUsedAt = time.Now().UTC()
 		reg.Packs[id] = ps
@@ -407,3 +422,28 @@ func (s *Server) packDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 var errPackMissing = errors.New("pack not enabled")
+
+// POST /api/packs/{id}/consent {"agree":true}
+func (s *Server) packConsent(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	var body struct {
+		Agree bool `json:"agree"`
+	}
+	if err := json.NewDecoder(io.LimitReader(r.Body, 1<<16)).Decode(&body); err != nil {
+		writeErr(w, 400, err.Error())
+		return
+	}
+	reg := s.loadPackRegistry()
+	ps, ok := reg.Packs[id]
+	if !ok {
+		writeErr(w, 400, "pack is not installed")
+		return
+	}
+	ps.Consent = body.Agree
+	reg.Packs[id] = ps
+	if err := s.savePackRegistry(reg); err != nil {
+		writeErr(w, 500, err.Error())
+		return
+	}
+	writeJSON(w, 200, map[string]any{"ok": true, "consent": body.Agree})
+}

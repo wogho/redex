@@ -59,7 +59,7 @@ export default function OsintPage() {
   const [providers, setProviders] = React.useState<Array<{ id: string; name: string; category: string; fields: string[]; paid: boolean; docs: string; note?: string; configured: boolean; implemented: boolean }>>([]);
   const [providerVals, setProviderVals] = React.useState<Record<string, string>>({});
   const [providerInput, setProviderInput] = React.useState<Record<string, string>>({});
-  const [packs, setPacks] = React.useState<Array<{ id: string; version: string; license: string; description: string; installed: boolean; enabled: boolean; pinned: boolean; size: number; bytes?: number }>>([]);
+  const [packs, setPacks] = React.useState<Array<{ id: string; version: string; license: string; description: string; installed: boolean; enabled: boolean; pinned: boolean; consent_required?: boolean; consent?: boolean; size: number; bytes?: number }>>([]);
   const [packsMeta, setPacksMeta] = React.useState<{ dir: string; max_bytes: number; auto_evict: boolean; auto_delete_on_disable: boolean; used: number; free: number } | null>(null);
   const [packDir, setPackDir] = React.useState("");
   const [localFile, setLocalFile] = React.useState<File | null>(null);
@@ -481,6 +481,9 @@ export default function OsintPage() {
                     <Button size="sm" variant="outline" onClick={() => void packAction(pk.id, pk.enabled ? "disable" : "enable")}>
                       {pk.enabled ? "비활성화" : "활성화"}
                     </Button>
+                    {pk.consent_required && !pk.consent ? (
+                      <Button size="sm" variant="default" onClick={async () => { try { await api.packConsent(pk.id); await loadPacks(); } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); } }}>동의</Button>
+                    ) : null}
                     <Button size="sm" variant="ghost" onClick={() => void togglePin(pk.id, !pk.pinned)}>{pk.pinned ? "고정됨" : "고정"}</Button>
                     <Button size="sm" variant="ghost" onClick={() => void packAction(pk.id, "delete")} disabled={pk.enabled}>삭제</Button>
                   </>
