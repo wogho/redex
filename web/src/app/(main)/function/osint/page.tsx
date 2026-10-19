@@ -56,6 +56,7 @@ export default function OsintPage() {
   const [igUser, setIgUser] = React.useState("");
   const [igPass, setIgPass] = React.useState("");
   const [credFile, setCredFile] = React.useState<File | null>(null);
+  const [packs, setPacks] = React.useState<Array<{ id: string; version: string; license: string; description: string; installed: boolean; enabled: boolean; size: number }>>([]);
 
   const loadScopes = React.useCallback(async () => {
     try {
@@ -81,10 +82,20 @@ export default function OsintPage() {
     }
   }, []);
 
+  const loadPacks = React.useCallback(async () => {
+    try {
+      const r = await api.packsList();
+      setPacks(r.packs ?? []);
+    } catch {
+      /* login required */
+    }
+  }, []);
+
   React.useEffect(() => {
     void loadScopes();
     void loadCred();
-  }, [loadScopes, loadCred]);
+    void loadPacks();
+  }, [loadScopes, loadCred, loadPacks]);
   React.useEffect(() => {
     void loadCandidates();
   }, [loadCandidates]);
@@ -155,6 +166,27 @@ export default function OsintPage() {
       toast.success("저장 완료");
       setCredFile(null);
       await loadCred();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const packAction = async (id: string, action: "install" | "enable" | "disable" | "delete") => {
+    try {
+      if (action === "install") await api.packInstall(id);
+      if (action === "enable") await api.packEnable(id);
+      if (action === "disable") await api.packDisable(id);
+      if (action === "delete") await api.packDelete(id);
+      await loadPacks();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const verdict = async (id: string, status: string) => {
+    try {
+      await api.osintVerdict(id, status);
+      await loadCandidates();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     }
@@ -301,6 +333,37 @@ export default function OsintPage() {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">소스 팩 (GitHub CDN)</CardTitle>
+          <CardDescription>체크(설치·활성화) 시에만 내려받아 사용합니다. 모든 팩은 SHA256 검증 후 적용됩니다.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2">
+          {packs.map((pk) => (
+            <div key={pk.id} className="flex flex-wrap items-center justify-between gap-2 border-b py-2 last:border-0">
+              <div>
+                <div className="text-sm font-medium">{pk.id} <span className="text-xs text-muted-foreground">v{pk.version} · {pk.license}</span></div>
+                <div className="text-xs text-muted-foreground">{pk.description} · {(pk.size / 1024).toFixed(0)} KB</div>
+              </div>
+              <div className="flex gap-2">
+                {!pk.installed ? (
+                  <Button size="sm" variant="outline" onClick={() => void packAction(pk.id, "install")}>설치</Button>
+                ) : (
+                  <>
+                    <Badge variant={pk.enabled ? "default" : "outline"}>{pk.enabled ? "활성" : "비활성"}</Badge>
+                    <Button size="sm" variant="outline" onClick={() => void packAction(pk.id, pk.enabled ? "disable" : "enable")}>
+                      {pk.enabled ? "비활성화" : "활성화"}
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => void packAction(pk.id, "delete")}>삭제</Button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+          {packs.length === 0 ? <p className="text-sm text-muted-foreground">사용 가능한 팩이 없습니다.</p> : null}
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader className="pb-3">
@@ -377,7 +440,11 @@ export default function OsintPage() {
                     </td>
                     <td className="px-4 py-2 font-mono">{c.confidence}</td>
                     <td className="px-4 py-2">
-                      <Badge variant={c.status === "evidence-backed" ? "default" : "secondary"}>{c.status}</Badge>
+                      <Badge variant={c.status === "evidence-backed" || c.status === "confirmed" ? "default" : "secondary"}>{c.status}</Badge>
+                      <div className="mt-1 flex gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => void verdict(c.id, "confirmed")}>확정</Button>
+                        <Button size="sm" variant="ghost" onClick={() => void verdict(c.id, "rejected")}>기각</Button>
+                      </div>
                     </td>
                   </tr>
                 ))}

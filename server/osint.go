@@ -105,6 +105,9 @@ func (s *Server) osintRun(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 502, err.Error())
 		return
 	}
+	if extra, xerr := s.collectExtended(r.Context(), in); xerr == nil {
+		candidates = append(candidates, extra...)
+	}
 	writeJSON(w, 200, map[string]any{"candidates": candidates, "count": len(candidates)})
 }
 
@@ -537,4 +540,49 @@ func firstNonEmptyLine(s string) string {
 		}
 	}
 	return ""
+}
+
+// PATCH /api/osint/candidates/{id} {"status":"confirmed|rejected|unverified"}
+func (s *Server) osintCandidateUpdate(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil || id <= 0 {
+		writeErr(w, 400, "bad id")
+		return
+	}
+	var body struct {
+		Status string `json:"status"`
+	}
+	if err := json.NewDecoder(io.LimitReader(r.Body, 1<<16)).Decode(&body); err != nil {
+		writeErr(w, 400, err.Error())
+		return
+	}
+	switch body.Status {
+	case "confirmed", "rejected", "unverified", "evidence-backed":
+	default:
+		writeErr(w, 400, "bad status")
+		return
+	}
+	if err := s.m.pg.UpdateOsintCandidateStatus(r.Context(), id, body.Status); err != nil {
+		writeErr(w, 500, err.Error())
+		return
+	}
+	writeJSON(w, 200, map[string]any{"ok": true, "status": body.Status})
+}
+
+// GET /api/osint/evidence/{sha} — download a stored evidence snapshot.
+func (s *Server) osintEvidence(w http.ResponseWriter, r *http.Request) {
+	sha := strings.ToLower(r.PathValue("sha"))
+	if !regexp.MustCompile(`^[a-f0-9]{64}$`).MatchString(sha) {
+		writeErr(w, 400, "bad sha")
+		return
+	}
+	path := filepath.Join(s.evidenceDir(), sha+".txt")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		writeErr(w, 404, "evidence not found")
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.txt"`, sha[:12]))
+	_, _ = w.Write(raw)
 }

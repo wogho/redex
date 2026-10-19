@@ -116,3 +116,9 @@ func (d *DB) ScopePersonOsintAllowed(ctx context.Context, id int64) (bool, error
 	err := d.QueryRowContext(ctx, `SELECT person_osint_allowed FROM engagement_scope WHERE id=$1`, id).Scan(&ok)
 	return ok, err
 }
+
+// UpdateOsintCandidateStatus sets the review verdict (unverified/confirmed/rejected).
+func (d *DB) UpdateOsintCandidateStatus(ctx context.Context, id int64, status string) error {
+	_, err := d.ExecContext(ctx, `UPDATE osint_candidate SET status=$2 WHERE id=$1`, id, status)
+	return err
+}

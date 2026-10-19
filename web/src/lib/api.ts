@@ -312,6 +312,13 @@ export const api = {
     fd.append("label", label);
     return http<{ id: number; label: string; faces: number }>("/osint/face/index", { method: "POST", body: fd });
   },
+  packsList: () =>
+    get<{ packs: Array<{ id: string; version: string; license: string; description: string; installed: boolean; enabled: boolean; size: number }> }>("/packs"),
+  packInstall: (id: string) => post<{ ok: boolean; sha256: string }>(`/packs/${encodeURIComponent(id)}/install`, {}),
+  packEnable: (id: string) => post<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}/enable`, {}),
+  packDisable: (id: string) => post<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}/disable`, {}),
+  packDelete: (id: string) => del<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}`),
+  osintVerdict: (id: string, status: string) => patch<{ ok: boolean }>(`/osint/candidates/${encodeURIComponent(id)}`, { status }),
   osintCredentials: () =>
     get<{
       hibp_configured: boolean;
