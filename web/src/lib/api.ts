@@ -312,6 +312,29 @@ export const api = {
     fd.append("label", label);
     return http<{ id: number; label: string; faces: number }>("/osint/face/index", { method: "POST", body: fd });
   },
+  osintCredentials: () =>
+    get<{
+      hibp_configured: boolean;
+      ghunt_configured: boolean;
+      instaloader_configured: boolean;
+      instaloader_user: string;
+    }>("/osint/credentials"),
+  osintSetHIBP: (key: string) => put<{ ok: boolean }>("/osint/credentials/hibp", { key }),
+  osintHIBP: (email: string) =>
+    post<{ count: number; breaches: Array<{ Title?: string; Domain?: string }> }>("/osint/hibp", { email }),
+  osintGhuntUpload: (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return http<{ ok: boolean }>("/osint/credentials/ghunt", { method: "POST", body: fd });
+  },
+  osintInstaloaderSession: (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return http<{ ok: boolean }>("/osint/credentials/instaloader/session", { method: "POST", body: fd });
+  },
+  osintInstaloaderLogin: (username: string, password: string) =>
+    post<{ ok: boolean; instaloader_user: string }>("/osint/credentials/instaloader/login", { username, password }),
+  osintInstaloaderLogout: () => post<{ ok: boolean }>("/osint/credentials/instaloader/logout", {}),
   osintFaceSearch: (file: File) => {
     const fd = new FormData();
     fd.append("image", file);

@@ -131,6 +131,9 @@ func (s *Server) collectHandle(ctx context.Context, in struct {
 		return nil, errors.New("invalid handle")
 	}
 	out, _ := s.runCLI(ctx, 150*time.Second, "maigret", in.Value, "--no-recursion", "--timeout", "20", "--print-found")
+	if extra, err := s.runCLI(ctx, 120*time.Second, "sherlock", in.Value, "--print-found", "--timeout", "20"); err == nil {
+		out += "\n" + extra
+	}
 	clean := ansiRE.ReplaceAllString(out, "")
 	cands := make([]db.OsintCandidate, 0, 32)
 	for _, line := range strings.Split(clean, "\n") {
@@ -230,8 +233,12 @@ func (s *Server) collectProfile(ctx context.Context, in struct {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, err
 	}
-	_, err := s.runCLIInDir(ctx, 240*time.Second, dir, "instaloader",
-		"--no-videos", "--no-metadata-json", "--dirname-pattern=.", "--count", strconv.Itoa(in.Limit), in.Value)
+	args := []string{"--no-videos", "--no-metadata-json", "--dirname-pattern=.", "--count", strconv.Itoa(in.Limit)}
+	if session := s.osintSecret("instaloader.session"); fileExists(session) {
+		args = append(args, "--sessionfile", session)
+	}
+	args = append(args, in.Value)
+	_, err := s.runCLIInDir(ctx, 240*time.Second, dir, "instaloader", args...)
 	if err != nil {
 		return nil, fmt.Errorf("profile collection failed: %w", err)
 	}

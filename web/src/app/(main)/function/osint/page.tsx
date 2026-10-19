@@ -45,6 +45,17 @@ export default function OsintPage() {
   const [label, setLabel] = React.useState("");
   const [file, setFile] = React.useState<File | null>(null);
   const [matches, setMatches] = React.useState<Array<{ id: string; label: string; score: number }>>([]);
+  const [cred, setCred] = React.useState<{
+    hibp_configured: boolean;
+    ghunt_configured: boolean;
+    instaloader_configured: boolean;
+    instaloader_user: string;
+  } | null>(null);
+  const [hibpKey, setHibpKey] = React.useState("");
+  const [hibpEmail, setHibpEmail] = React.useState("");
+  const [igUser, setIgUser] = React.useState("");
+  const [igPass, setIgPass] = React.useState("");
+  const [credFile, setCredFile] = React.useState<File | null>(null);
 
   const loadScopes = React.useCallback(async () => {
     try {
@@ -62,9 +73,18 @@ export default function OsintPage() {
     setRows((r.candidates ?? []) as Candidate[]);
   }, [engagement]);
 
+  const loadCred = React.useCallback(async () => {
+    try {
+      setCred(await api.osintCredentials());
+    } catch {
+      /* login required */
+    }
+  }, []);
+
   React.useEffect(() => {
     void loadScopes();
-  }, [loadScopes]);
+    void loadCred();
+  }, [loadScopes, loadCred]);
   React.useEffect(() => {
     void loadCandidates();
   }, [loadCandidates]);
@@ -89,6 +109,54 @@ export default function OsintPage() {
       toast.error(err instanceof Error ? err.message : String(err));
     } finally {
       setBusy(false);
+    }
+  };
+
+  const saveHIBP = async () => {
+    try {
+      await api.osintSetHIBP(hibpKey);
+      setHibpKey("");
+      toast.success("HIBP 키 저장");
+      await loadCred();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const runHIBP = async () => {
+    try {
+      const r = await api.osintHIBP(hibpEmail);
+      toast.success(`브리치 ${r.count}건`);
+      await loadCandidates();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const igLogin = async () => {
+    try {
+      const r = await api.osintInstaloaderLogin(igUser, igPass);
+      setIgPass("");
+      toast.success(`세션 저장: ${r.instaloader_user}`);
+      await loadCred();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const uploadCred = async (kind: "ghunt" | "instaloader") => {
+    if (!credFile) {
+      toast.error("파일을 선택하세요");
+      return;
+    }
+    try {
+      if (kind === "ghunt") await api.osintGhuntUpload(credFile);
+      else await api.osintInstaloaderSession(credFile);
+      toast.success("저장 완료");
+      setCredFile(null);
+      await loadCred();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -187,6 +255,49 @@ export default function OsintPage() {
             <SearchIcon className="size-4" />
             실행
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">연결 · 자격</CardTitle>
+          <CardDescription>수집기 세션과 API 키를 여기서 저장합니다. 값은 다시 표시되지 않습니다.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          <div className="flex flex-col gap-2">
+            <Label>HIBP 키</Label>
+            <Badge variant={cred?.hibp_configured ? "default" : "outline"}>
+              {cred?.hibp_configured ? "등록됨" : "없음"}
+            </Badge>
+            <Input placeholder="hibp api key" value={hibpKey} onChange={(e) => setHibpKey(e.target.value)} />
+            <Button size="sm" variant="outline" onClick={() => void saveHIBP()}>키 저장</Button>
+            <div className="flex gap-2">
+              <Input placeholder="email" value={hibpEmail} onChange={(e) => setHibpEmail(e.target.value)} />
+              <Button size="sm" onClick={() => void runHIBP()}>조회</Button>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>GHunt 쿠키</Label>
+            <Badge variant={cred?.ghunt_configured ? "default" : "outline"}>
+              {cred?.ghunt_configured ? "등록됨" : "없음"}
+            </Badge>
+            <Input type="file" accept=".json,.txt" onChange={(e) => setCredFile(e.target.files?.[0] ?? null)} />
+            <Button size="sm" variant="outline" onClick={() => void uploadCred("ghunt")}>쿠키 업로드</Button>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>instaloader 세션</Label>
+            <Badge variant={cred?.instaloader_configured ? "default" : "outline"}>
+              {cred?.instaloader_user ? `${cred.instaloader_user} 로그인됨` : "없음"}
+            </Badge>
+            <Input placeholder="username" value={igUser} onChange={(e) => setIgUser(e.target.value)} />
+            <Input type="password" placeholder="password" value={igPass} onChange={(e) => setIgPass(e.target.value)} />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => void igLogin()}>로그인</Button>
+              <Button size="sm" variant="outline" onClick={() => void api.osintInstaloaderLogout().then(loadCred)}>로그아웃</Button>
+            </div>
+            <Input type="file" onChange={(e) => setCredFile(e.target.files?.[0] ?? null)} />
+            <Button size="sm" variant="outline" onClick={() => void uploadCred("instaloader")}>세션 파일 업로드</Button>
+          </div>
         </CardContent>
       </Card>
 

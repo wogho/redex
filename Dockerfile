@@ -138,7 +138,7 @@ RUN set -eux; \
 # ---------------------------------------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
-RUN pip install --no-cache-dir maigret holehe ghunt onnxruntime opencv-python-headless insightface instaloader
+RUN pip install --no-cache-dir maigret holehe ghunt sherlock-project onnxruntime opencv-python-headless insightface instaloader
 RUN set -eux; \
     case "${TARGETARCH:-amd64}" in amd64) A=amd64 ;; arm64) A=arm64 ;; *) exit 1 ;; esac; \
     curl -fsSL -o /tmp/phoneinfoga.tgz "https://github.com/sundowndev/phoneinfoga/releases/download/v2.11.0/phoneinfoga_Linux_${A}.tar.gz"; \
@@ -153,7 +153,7 @@ RUN python3 -c "from insightface.app import FaceAnalysis; FaceAnalysis(name='buf
 RUN set -eux; \
     for b in smbclient rpcclient ldapsearch hashcat john psql mysql redis-cli aws \
              arjun certipy ldapdomaindump bloodhound-python jwt_tool kerbrute \
-             rclone mitm6 pypykatz sliver-server sliver maigret holehe ghunt phoneinfoga instaloader \
+             rclone mitm6 pypykatz sliver-server sliver maigret holehe ghunt sherlock phoneinfoga instaloader \
              ffuf nuclei subfinder chisel nikto sqlmap hydra masscan whatweb gobuster impacket-secretsdump; do \
       command -v "$b"; \
     done
