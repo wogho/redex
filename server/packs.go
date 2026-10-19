@@ -66,6 +66,14 @@ var defaultPackManifest = []packManifestEntry{
 		License: "CC-BY-SA-4.0", Upstream: "https://github.com/WebBreacher/WhatsMyName",
 		Description: "WhatsMyName site list (692 sites)",
 	},
+	{
+		ID: "nuclei_templates", Version: "2026.10.1",
+		URL:     "https://github.com/wogho/redex-packs/releases/download/packs-2026.10/nuclei-templates-2026.10.1.tar.zst",
+		SHA256:  "f6c4583f3268b21855c024e3d0fd052792d86c5963f44c68e488446b648d0a0e",
+		Size:    9582229,
+		License: "MIT", Upstream: "https://github.com/projectdiscovery/nuclei-templates",
+		Description: "nuclei templates (projectdiscovery)",
+	},
 }
 
 func (s *Server) packRoot() string {
