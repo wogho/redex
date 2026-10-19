@@ -324,6 +324,16 @@ export const api = {
   packEnable: (id: string) => post<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}/enable`, {}),
   packDisable: (id: string) => post<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}/disable`, {}),
   packDelete: (id: string) => del<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}`),
+  packInstallLocal: (id: string, file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return http<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}/install-local`, { method: "POST", body: fd });
+  },
+  packImport: (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return http<{ ok: boolean; installed: string[] }>("/packs/import", { method: "POST", body: fd });
+  },
   packPin: (id: string, pinned: boolean) => post<{ ok: boolean }>(`/packs/${encodeURIComponent(id)}/pin`, { pinned }),
   packSettings: (body: { dir?: string; max_bytes?: number; auto_evict?: boolean; auto_delete_on_disable?: boolean }) =>
     put<{ ok: boolean }>("/packs/settings", body),

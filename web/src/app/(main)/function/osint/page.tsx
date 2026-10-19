@@ -62,6 +62,8 @@ export default function OsintPage() {
   const [packs, setPacks] = React.useState<Array<{ id: string; version: string; license: string; description: string; installed: boolean; enabled: boolean; pinned: boolean; size: number; bytes?: number }>>([]);
   const [packsMeta, setPacksMeta] = React.useState<{ dir: string; max_bytes: number; auto_evict: boolean; auto_delete_on_disable: boolean; used: number; free: number } | null>(null);
   const [packDir, setPackDir] = React.useState("");
+  const [localFile, setLocalFile] = React.useState<File | null>(null);
+  const [localPack, setLocalPack] = React.useState("");
   const [maxGB, setMaxGB] = React.useState("20");
 
   const loadScopes = React.useCallback(async () => {
@@ -218,6 +220,31 @@ export default function OsintPage() {
       if (action === "enable") await api.packEnable(id);
       if (action === "disable") await api.packDisable(id);
       if (action === "delete") await api.packDelete(id);
+      await loadPacks();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const installLocal = async () => {
+    if (!localPack || !localFile) {
+      toast.error("팩 ID와 파일을 선택하세요");
+      return;
+    }
+    try {
+      await api.packInstallLocal(localPack, localFile);
+      toast.success("로컬 설치 완료");
+      setLocalFile(null);
+      await loadPacks();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const importPacks = async (file: File) => {
+    try {
+      const r = await api.packImport(file);
+      toast.success(`가져오기 완료: ${(r.installed ?? []).join(", ")}`);
       await loadPacks();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
@@ -469,6 +496,13 @@ export default function OsintPage() {
             <Input className="w-72" value={packDir} onChange={(e) => setPackDir(e.target.value)} placeholder="저장 경로" />
             <Input className="w-24" value={maxGB} onChange={(e) => setMaxGB(e.target.value.replace(/[^0-9]/g, ""))} placeholder="최대 GB" />
             <Button size="sm" variant="outline" onClick={() => void savePackSettings()}>경로·예산 저장</Button>
+          </div>
+          <div className="flex flex-wrap items-end gap-2">
+            <Input className="w-40" placeholder="팩 ID" value={localPack} onChange={(e) => setLocalPack(e.target.value)} />
+            <Input type="file" accept=".zst,.zip" className="w-56" onChange={(e) => setLocalFile(e.target.files?.[0] ?? null)} />
+            <Button size="sm" variant="outline" onClick={() => void installLocal()}>로컬 설치</Button>
+            <Input type="file" accept=".zip" className="w-56" onChange={(e) => { const f = e.target.files?.[0]; if (f) void importPacks(f); }} />
+            <span className="text-xs text-muted-foreground">내보내기는 API: /api/packs/export</span>
           </div>
           {packs.length === 0 ? <p className="text-sm text-muted-foreground">사용 가능한 팩이 없습니다.</p> : null}
         </CardContent>
