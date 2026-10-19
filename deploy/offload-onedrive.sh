@@ -34,7 +34,7 @@ sudo docker exec redex-postgres-1 pg_dump -U artex -d artex | gzip > "$STAGE/db/
 echo "[upload] start"
 rclone copy "$STAGE" onedrive:redex --transfers 2 --checkers 4 --stats 30s --stats-one-line -v
 echo "[upload] verify"
-rclone check "$STAGE" onedrive:redex --size-only
+rclone check "$STAGE" onedrive:redex --size-only --one-way
 {
   echo "# redex offload manifest $(date -Is)"
   echo "# commit $C"
