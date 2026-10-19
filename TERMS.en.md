@@ -24,18 +24,17 @@ These Terms grant you a permission to **use** the Software and packs for lawful,
 authorized purposes. They do not grant any right to data that is not included in
 a pack.
 
-## 3. Authorized use only
+## 3. Permitted use only
 
-You may use the Software only:
+The Software is provided solely for personal learning, code study, exploration of
+security principles, and verification in a locally isolated environment you build
+yourself.
 
-- against systems you own, or for which you hold **explicit prior written
-  authorization** defining scope, time window and permitted techniques; and
-- in compliance with all applicable laws, including computer-crime, privacy and
-  data-protection law in your jurisdiction.
-
-You must not use the Software for unauthorized intrusion, data theft, service
-disruption, harassment, surveillance of individuals without a lawful basis, or
-any other unlawful purpose.
+- Scanning, probing, exploiting or attacking any website, online service or
+  third-party system is prohibited regardless of authorization.
+- Real penetration tests, red/blue exercises and production use are prohibited.
+- Illegal intrusion, data theft, extortion, denial of service, and destructive or
+  criminal activity are prohibited.
 
 ## 4. Your responsibilities; indemnity
 
@@ -113,3 +112,10 @@ rules.
 
 Open an issue at <https://github.com/wogho/redex> or
 <https://github.com/wogho/redex-packs>.
+
+## 12. Distribution
+
+Distributors are not liable for any claim, loss or cost arising from the act of
+distributing the Software or packs. Responsibility for use, redistribution or
+provision to third parties rests with the party that does so. Distributors do not
+participate in, or control, the purpose or manner of use.
