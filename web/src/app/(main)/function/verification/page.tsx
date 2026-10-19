@@ -10,9 +10,12 @@ import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyState, ErrorState, LoadingState } from "@/components/states";
+import { toast } from "sonner";
+
 import { api } from "@/lib/api";
 
 type VerificationRow = {
@@ -51,6 +54,8 @@ export default function VerificationPage() {
   const [minConfidence, setMinConfidence] = React.useState("0");
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
+  const [sel, setSel] = React.useState<Set<string>>(new Set());
+  const [clusters, setClusters] = React.useState<Array<{ dedupe_key: string; count: number; max_confidence: number; representative_id: string; representative_name: string }>>([]);
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -66,6 +71,8 @@ export default function VerificationPage() {
       ]);
       setRows(list.findings ?? []);
       setCounts(summary.counts ?? {});
+      const cl = await api.verificationClusters();
+      setClusters(cl.clusters ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -76,6 +83,17 @@ export default function VerificationPage() {
   React.useEffect(() => {
     void load();
   }, [load]);
+
+  const bulk = async (status: string) => {
+    try {
+      await api.verificationBulk([...sel], status);
+      toast.success(`${sel.size}건 처리`);
+      setSel(new Set());
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -138,6 +156,40 @@ export default function VerificationPage() {
       </div>
 
       {error ? <ErrorState message={error} onRetry={() => void load()} /> : null}
+      {clusters.length ? (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">클러스터 ({clusters.length})</CardTitle>
+            <CardDescription>같은 dedupe_key로 묶인 중복입니다. 대표를 남기고 나머지를 중복 처리합니다.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2 text-sm">
+            {clusters.map((c) => (
+              <div key={c.dedupe_key} className="flex flex-wrap items-center justify-between gap-2 border-b py-1 last:border-0">
+                <div>
+                  <span className="font-mono text-xs">{c.dedupe_key.slice(0, 10)}</span> · {c.count}건 · 대표: {c.representative_name || c.representative_id} (conf {c.max_confidence})
+                </div>
+                <Button size="sm" variant="outline" onClick={async () => {
+                  try {
+                    await api.verificationMerge(c.dedupe_key, c.representative_id);
+                    toast.success("중복 처리 완료");
+                    await load();
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : String(e));
+                  }
+                }}>대표만 남기기</Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+      {sel.size ? (
+        <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
+          <span>{sel.size}개 선택</span>
+          <Button size="sm" onClick={() => bulk("confirmed")}>확정</Button>
+          <Button size="sm" variant="outline" onClick={() => bulk("false_positive")}>기각</Button>
+          <Button size="sm" variant="ghost" onClick={() => setSel(new Set())}>선택 해제</Button>
+        </div>
+      ) : null}
       {loading && rows.length === 0 ? <LoadingState /> : null}
       {!loading && !error && rows.length === 0 ? (
         <EmptyState title="검증할 항목이 없습니다" description="게이트를 통과한 발견이 생기면 여기에 표시됩니다." />
@@ -148,6 +200,12 @@ export default function VerificationPage() {
             <table className="w-full text-sm">
               <thead className="border-b bg-muted/40 text-left text-xs uppercase text-muted-foreground">
                 <tr>
+                  <th className="px-4 py-2">
+                    <Checkbox
+                      checked={rows.length > 0 && rows.every((r) => sel.has(r.finding_id))}
+                      onCheckedChange={(v) => setSel(v === true ? new Set(rows.map((r) => r.finding_id)) : new Set())}
+                    />
+                  </th>
                   <th className="px-4 py-2">{t("name")}</th>
                   <th className="px-4 py-2">{t("task")}</th>
                   <th className="px-4 py-2">{t("severity")}</th>
@@ -159,6 +217,16 @@ export default function VerificationPage() {
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.finding_id} className="border-b last:border-0 hover:bg-muted/30">
+                    <td className="px-4 py-3">
+                      <Checkbox
+                        checked={sel.has(row.finding_id)}
+                        onCheckedChange={(v) => {
+                          const next = new Set(sel);
+                          if (v === true) next.add(row.finding_id); else next.delete(row.finding_id);
+                          setSel(next);
+                        }}
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <div className="font-medium">{row.name || row.vulnclass || "-"}</div>
                       <div className="text-xs text-muted-foreground">{row.vulnclass}</div>
@@ -192,7 +260,7 @@ export default function VerificationPage() {
                 ))}
                 {!loading && rows.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                    <td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">
                       {t("empty")}
                     </td>
                   </tr>

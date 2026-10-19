@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/states";
+import { ConsentDialog } from "@/components/consent-dialog";
 import { api } from "@/lib/api";
 
 type Candidate = {
@@ -67,6 +68,7 @@ export default function OsintPage() {
   const [localFile, setLocalFile] = React.useState<File | null>(null);
   const [localPack, setLocalPack] = React.useState("");
   const [packProgress, setPackProgress] = React.useState<Record<string, string>>({});
+  const [consentTarget, setConsentTarget] = React.useState<{ kind: "pack" | "provider"; id: string; name: string } | null>(null);
   const [maxGB, setMaxGB] = React.useState("20");
 
   const loadScopes = React.useCallback(async () => {
@@ -540,7 +542,7 @@ export default function OsintPage() {
                   onChange={(e) => setProviderInput({ ...providerInput, [pv.id]: e.target.value })}
                 />
                 {pv.consent_required && !pv.consent ? (
-                  <Button size="sm" variant="default" onClick={async () => { try { await api.providerConsent(pv.id); await loadProviders(); } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); } }}>동의</Button>
+                  <Button size="sm" variant="default" onClick={() => setConsentTarget({ kind: "provider", id: pv.id, name: pv.name })}>동의</Button>
                 ) : null}
                 <Button size="sm" onClick={() => void runProvider(pv.id)} disabled={!pv.implemented || (pv.consent_required && !pv.consent)}>실행</Button>
               </div>
@@ -575,7 +577,7 @@ export default function OsintPage() {
                       {pk.enabled ? "비활성화" : "활성화"}
                     </Button>
                     {pk.consent_required && !pk.consent ? (
-                      <Button size="sm" variant="default" onClick={async () => { try { await api.packConsent(pk.id); await loadPacks(); } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); } }}>동의</Button>
+                      <Button size="sm" variant="default" onClick={() => setConsentTarget({ kind: "pack", id: pk.id, name: pk.id })}>동의</Button>
                     ) : null}
                     <Button size="sm" variant="ghost" onClick={() => void togglePin(pk.id, !pk.pinned)}>{pk.pinned ? "고정됨" : "고정"}</Button>
                     <Button size="sm" variant="ghost" onClick={() => void packAction(pk.id, "delete")} disabled={pk.enabled}>삭제</Button>
@@ -659,6 +661,34 @@ export default function OsintPage() {
 
         </TabsContent>
       </Tabs>
+      <ConsentDialog
+        open={!!consentTarget}
+        onOpenChange={(v) => { if (!v) setConsentTarget(null); }}
+        title={`${consentTarget?.name ?? ""} 동의`}
+        description="아래 조항을 읽고 체크해야 활성화할 수 있습니다."
+        terms={
+          consentTarget?.kind === "provider"
+            ? [
+                "이 프로바이더는 유료이거나 이용약관 제한이 있을 수 있습니다.",
+                "API 키 발급과 요금은 사용자 책임입니다.",
+                "제3자 약관과 관련 법령을 준수해야 합니다.",
+                "조회 결과의 사용과 보관에 대한 책임은 사용자에게 있습니다.",
+              ]
+            : [
+                "이 팩은 공격용 데이터/도구를 포함할 수 있습니다.",
+                "팩의 라이선스와 출처를 확인했으며, 사용 책임은 사용자에게 있습니다.",
+                "교전 범위 내에서만 사용합니다.",
+                "재배포 시 해당 라이선스 조건을 따라야 합니다.",
+              ]
+        }
+        onConfirm={async () => {
+          if (!consentTarget) return;
+          if (consentTarget.kind === "pack") await api.packConsent(consentTarget.id);
+          else await api.providerConsent(consentTarget.id);
+          await loadPacks();
+          await loadProviders();
+        }}
+      />
     </div>
   );
 }

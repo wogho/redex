@@ -272,6 +272,11 @@ export const api = {
   health: () => get<{ ok: boolean; service: string; version: string }>("/health"),
   verificationFindings: (q: URLSearchParams) =>
     get<{ findings: VerificationFinding[] }>(`/verification/findings?${q.toString()}`),
+  attackUsage: (task?: string) => get<{ findings: number; techniques: Array<{ id: string; tactic: string; count: number; examples: string[] }> }>(`/attack/usage${tq(task)}`),
+  cveMap: (cve: string) => get<{ cve: string; exploits: Array<{ id: string; file: string; description: string; date: string; type: string; platform: string }>; nvd: { id: string; description: string; score: number; severity: string } | null }>(`/cve/map?cve=${encodeURIComponent(cve)}`),
+  verificationBulk: (ids: string[], status: string) => post<{ ok: boolean; updated: number }>("/verification/bulk", { ids, status }),
+  verificationMerge: (dedupe_key: string, representative_id: string) => post<{ ok: boolean; duplicates: number }>("/verification/merge", { dedupe_key, representative_id }),
+  verificationClusters: () => get<{ clusters: Array<{ dedupe_key: string; count: number; max_confidence: number; representative_id: string; representative_name: string }> }>("/verification/clusters"),
   verificationSummary: () => get<{ counts: Record<string, number> }>("/verification/summary"),
   policyGet: () => get<PolicyView>("/policy"),
   policyPut: (content: string) => put<{ ok: boolean; path: string }>("/policy", { content }),
