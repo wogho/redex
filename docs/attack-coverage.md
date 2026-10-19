@@ -46,6 +46,7 @@
 | Defense Evasion 심화 (AMSI/ETW 우회, 루트킷) | EDR 랩 전용. 일반 교전에서 사고 반경만 확대 |
 | 대규모 피싱/스팸 인프라 | 별도 서비스(Gophish 등) 영역, 이미지 내장 부적합 |
 | NetExec / evil-winrm | arm64 환경에서 wheel/gem 빌드 실패(PyPI·rubygems 배포 부재). impacket 래퍼로 대체 |
+| Rubeus / Seatbelt / SharpHound | 업스트림 릴리스 자산 확인 실패(GhostPack 릴리스 API 비어 있음). Windows 측 실행 파일은 별도로 `/opt/windows` 에 추가 가능 |
 
 ## 재현
 
