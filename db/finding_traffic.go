@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/wogho/redex/notify"
+	"github.com/wogho/redex/verify"
 )
 
 var (
@@ -335,6 +336,12 @@ type RecordedFinding struct {
 	FindingID int64           `json:"finding_id,string"`
 	NodeID    int64           `json:"finding_node_id,string"`
 	Traffic   *FindingTraffic `json:"traffic"`
+	// Verification gate verdict (see package verify). Duplicate means an
+	// equivalent finding already exists in this task and nothing was inserted.
+	Confidence    int      `json:"confidence"`
+	VerifyStatus  string   `json:"verify_status,omitempty"`
+	VerifyReasons []string `json:"verify_reasons,omitempty"`
+	Duplicate     bool     `json:"duplicate,omitempty"`
 }
 
 // ctx 由调用方传入本次事务所用的上下文（而非在内部取 context.Background）：
@@ -359,6 +366,24 @@ func RecordFindingTx(ctx context.Context, tx *sql.Tx, in RecordFindingInput, pre
 		}
 		if !ok {
 			return nil, errors.New("intent_id 必须是本任务的意图（关联任务意图只读）")
+		}
+	}
+	ver := verify.Analyze(verify.Input{
+		VulnClass: in.VulnClass, Name: in.Name, Severity: in.Severity,
+		Summary: in.Summary, Evidence: in.Evidence,
+		AssetIDs: in.AssetIDs, TrafficRefs: len(prepared),
+	})
+	if ver.Status == verify.StatusRejected {
+		return nil, fmt.Errorf("증거 부족으로 등록 거부: %s. evidence 에 실행한 명령과 원시 출력(HTTP 요청/응답 포함)을 최소 %d자 이상 담아 다시 제출하십시오.", strings.Join(ver.Reasons, "; "), verify.MinEvidenceRunes)
+	}
+	if in.TaskID > 0 {
+		var dupID, dupNode int64
+		err := tx.QueryRow(`SELECT f.id, COALESCE(f.node_id,0) FROM finding_verification v JOIN findings f ON f.id=v.finding_id WHERE v.dedupe_key=$1 AND f.task_id=$2 ORDER BY f.id LIMIT 1`, ver.DedupeKey, in.TaskID).Scan(&dupID, &dupNode)
+		if err == nil {
+			return &RecordedFinding{FindingID: dupID, NodeID: dupNode, Duplicate: true, Confidence: ver.Confidence, VerifyStatus: "duplicate", VerifyReasons: ver.Reasons}, nil
+		}
+		if err != sql.ErrNoRows {
+			return nil, err
 		}
 	}
 	payload, _ := json.Marshal(map[string]any{"vulnclass": in.VulnClass, "name": in.Name, "severity": in.Severity, "summary": in.Summary, "evidence": map[string]any{"by": in.Worker, "poc": in.Evidence}})
@@ -386,6 +411,14 @@ VALUES($1,'finding',$2,9,'confirmed',$3) RETURNING id`, in.ExplorationID, string
 VALUES(NULLIF($1,0),$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`, in.TaskID, out.NodeID, in.VulnClass, in.Name, in.Severity, in.Summary, in.Evidence, in.Worker, string(raw)).Scan(&out.FindingID); err != nil {
 		return nil, err
 	}
+	reasonsJSON, _ := json.Marshal(ver.Reasons)
+	if _, err := tx.Exec(`INSERT INTO finding_verification(finding_id,confidence,status,dedupe_key,reasons)
+VALUES($1,$2,$3,$4,$5) ON CONFLICT (finding_id) DO NOTHING`, out.FindingID, ver.Confidence, ver.Status, ver.DedupeKey, string(reasonsJSON)); err != nil {
+		return nil, err
+	}
+	out.Confidence = ver.Confidence
+	out.VerifyStatus = ver.Status
+	out.VerifyReasons = ver.Reasons
 	// 在**同一事务**里登记一条推送事件：提交即保证「漏洞落库」与「推送任务存在」
 	// 原子一致，不存在提交成功却没入队、消息永久丢失的窗口。
 	// 这里的失败被隔离在保存点上、不影响漏洞写入（见函数注释），因此忽略返回值。

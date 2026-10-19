@@ -77,7 +77,8 @@ export default function SetupPage() {
           <div className="absolute size-60 rounded-full border border-primary-foreground/15" />
           <div className="absolute size-40 rounded-full border border-primary-foreground/20" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Redex" width={160} height={160} className="relative" />
+          <img src="/logo-dark.png" alt="Redex" width={240} height={63} className="relative dark:hidden" />
+          <img src="/logo-light.png" alt="Redex" width={240} height={63} className="relative hidden dark:block" />
         </div>
       </div>
 

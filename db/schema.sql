@@ -1108,6 +1108,19 @@ CREATE INDEX IF NOT EXISTS idx_findings_status ON findings(status, created_at DE
 -- 「按资产」视图靠 asset_ids @> '[<id>]' 反查发现,没有这个 GIN 索引就是全表扫。
 CREATE INDEX IF NOT EXISTS idx_findings_asset_ids ON findings USING GIN(asset_ids jsonb_path_ops);
 
+-- 검증 게이트: report_finding 이 기록될 때의 구조적 신뢰도/상태/중복 키.
+-- 상세 필드를 findings 에 직접 넣지 않는 이유: 기존 SELECT/scan 목록을 건드리지 않고
+-- 게이트만 따로 진화시키기 위해서다(finding_id 1:1).
+CREATE TABLE IF NOT EXISTS finding_verification (
+    finding_id BIGINT PRIMARY KEY REFERENCES findings(id) ON DELETE CASCADE,
+    confidence INT NOT NULL DEFAULT 0,
+    status     TEXT NOT NULL DEFAULT '',
+    dedupe_key TEXT NOT NULL DEFAULT '',
+    reasons    JSONB NOT NULL DEFAULT '[]',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_finding_verification_key ON finding_verification(dedupe_key);
+
 -- 手动复测属于独立会话；结论与原漏洞处置状态分开保存。
 CREATE TABLE IF NOT EXISTS finding_retests (
     id BIGSERIAL PRIMARY KEY,

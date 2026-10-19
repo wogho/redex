@@ -1,0 +1,15 @@
+{
+  "_comment": "REDEX_POLICY_FILE 로 지정하는 운영 정책. deny 는 공격형 모드에서도 항상 차단된다. 정규식은 Go RE2 문법(룩어헤드 미지원).",
+  "deny": [
+    "rm\\s+-rf\\s+/(\\s|$)",
+    "rm\\s+-rf\\s+--no-preserve-root",
+    "mkfs(\\.[a-z0-9]+)?\\s",
+    "dd\\s+if=/dev/(zero|random)\\s+of=/dev/(sd|nvme|vd)",
+    "shutdown|reboot|poweroff|halt",
+    ":\\(\\)\\s*\\{\\s*:\\|:&\\s*\\}\\s*;\\s*:",
+    "chmod\\s+-R\\s+777\\s+/",
+    ">\\s*/dev/(sd|nvme|vd)[a-z]"
+  ],
+  "allow": [],
+  "deny_tools": []
+}

@@ -14,9 +14,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Autumn-27/norma/hook"
 	"github.com/wogho/redex/config"
 	"github.com/wogho/redex/intercept"
-	"github.com/Autumn-27/norma/hook"
 )
 
 // AuditEntry records one gated tool call.
@@ -75,6 +75,9 @@ func (g *Guard) preToolUse(ctx context.Context, ev hook.Event) hook.Result {
 		_ = json.Unmarshal(ev.Input, &in)
 		cmd = in.Text
 	}
+	if blocked, reason := checkToolPolicy(ev.ToolName, cmd); blocked {
+		return g.block(ev.ToolName, systemBlockMessage(reason), cmd)
+	}
 	g.record(ev.ToolName, "allow", "", cmd)
 	return g.applyIntercept(ctx, ev)
 }
@@ -89,7 +92,7 @@ func (g *Guard) applyIntercept(ctx context.Context, ev hook.Event) hook.Result {
 	// rules, the LLM fallback judge, and the manual ask/approval wait — is
 	// bypassed. preToolUse already appended an "allow" audit entry, so every
 	// call stays visible in the audit trail; only the gate is gone.
-	if config.Offensive() {
+	if config.Offensive() && !config.RequireHuman() {
 		return hook.Result{}
 	}
 	if !g.interceptor.IsToolEnabled(ev.ToolName) {

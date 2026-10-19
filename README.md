@@ -8,6 +8,13 @@
 
 # Redex — Global Edition
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="web/public/logo-dark.png">
+    <img src="web/public/logo-light.png" alt="Redex" width="380">
+  </picture>
+</p>
+
 **An autonomous penetration-testing system driven by LLM multi-agents** (Go backend + Next.js frontend)
 
 The UI and generated output default to English, and **can be switched to Korean, Chinese, Spanish or Japanese in Settings (System → Settings → Display language).** Changing the language also changes the language of agent-generated reports, summaries and chat replies.
@@ -54,6 +61,61 @@ Redex may be used **only against targets you own or for which you have explicit 
 Full license terms, usage restrictions, and the disclaimer are in the [License and disclaimer](#license-and-disclaimer) section below. Using this tool constitutes your agreement to those terms.
 
 ---
+
+## What Redex does
+
+Redex is an **autonomous offensive security console**. Give it a scoped target and an objective: a planner decomposes the goal into an attack chain, workers execute real tools inside the container, findings are written to an exploration graph with evidence, and a verification gate scores each finding before it reaches the report.
+
+### Attack toolset (shipped in the image)
+
+| Phase | Tools |
+|---|---|
+| Recon | `nmap` `masscan` `subfinder` `whatweb` `dnsutils` |
+| Web discovery | `ffuf` `gobuster` `wfuzz` `dirb` `nikto` `arjun` |
+| Injection & CVE | `sqlmap` `commix` `nuclei` (+ templates) |
+| Credentials | `hydra` `hashcat` `john` `jwt_tool` `rockyou` |
+| Active Directory | `impacket` `smbclient` `rpcclient` `ldapsearch` `ldapdomaindump` `bloodhound` `certipy-ad` `kerbrute` |
+| Pivoting | `chisel` `socat` `proxychains4` `sshuttle` `ligolo-ng` |
+| Post-exploitation | `linpeas` `winPEAS` `linux-exploit-suggester` `mimikatz` |
+| Impact proof | `psql` `mysql` `redis-cli` `awscli` |
+| Browser | Playwright Chromium (MCP / CLI) |
+
+### Offensive pipeline
+
+```mermaid
+flowchart LR
+  T["Scoped target"] --> P{"Operator policy<br/>deny / allow / deny_tools"}
+  P -->|blocked| X["Refused + audited"]
+  P -->|allowed| R["Recon workers<br/>nmap · subfinder · whatweb"]
+  R --> PL["Planner<br/>attack chain + todolist"]
+  PL --> W["Workers ×N<br/>Bash + toolset"]
+  W --> VF{"Verification gate<br/>evidence ≥ 40 chars<br/>confidence / dedupe"}
+  VF -->|reject| W
+  VF -->|duplicate| D["Existing finding"]
+  VF -->|evidence-backed| F["Finding + confidence"]
+  F --> UI["Dashboard · graph · findings"]
+  F --> REP["Report<br/>Markdown · CSV · JSON"]
+```
+
+### Finding verification gate (P0)
+
+Every `report_finding` call is checked before it is written (`verify` package):
+
+- **rejected** — evidence shorter than 40 characters; the agent is told to resubmit commands and raw output.
+- **unverified** — recorded, but no command/HTTP raw output signals; low confidence.
+- **evidence-backed** — reproducible commands or raw request/response, 120+ characters, confidence ≥ 60.
+
+Confidence is deterministic (evidence depth, reproduction signals, bound HTTP traffic, severity, summary). A dedupe key over `(vulnclass, normalized title, sorted assets)` returns the **existing** finding instead of creating a duplicate, so restatements do not inflate the report. The verdict rides back in the `report_finding` response (`confidence`, `verify_status`, `duplicate`).
+
+### Operator policy (P0)
+
+`REDEX_POLICY_FILE` points at a JSON policy enforced **before** any mode bypass:
+
+```json
+{"deny": ["rm\\s+-rf\\s+/(\\s|$)"], "allow": [], "deny_tools": ["shell_open"]}
+```
+
+`deny` wins even in `REDEX_MODE=offensive`; a non-empty `allow` list turns policy into an allowlist; `deny_tools` blocks by tool name. Set `REDEX_REQUIRE_HUMAN=1` to force the approval gate back on in offensive mode. See [`docs/verification-and-policy.md`](docs/verification-and-policy.md).
 
 ## Why a global edition
 
