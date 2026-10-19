@@ -37,3 +37,7 @@ This repository contains **no credentials, API keys, private keys, database dump
 - 허가 없는 스캔·침투·익스플로잇은 형사처벌 대상입니다(정보통신망법, 개인정보보호법 등).
 - 본 소프트웨어는 어떠한 보증도 없이 "있는 그대로" 제공되며, 사용으로 인해 발생하는 모든 직·간접적 손해와 법적 책임은 **전적으로 사용자에게 있습니다**. 제작자·기여자는 책임지지 않습니다.
 - 이 저장소에는 비밀번호·API 키·개인키·DB 덤프 등 민감정보가 포함되어 있지 않습니다. 배포용 비밀값은 반드시 저장소 밖에서 관리하십시오.
+
+## Terms
+
+Full terms of use and liability allocation: [TERMS.ko.md](TERMS.ko.md) · [TERMS.en.md](TERMS.en.md).

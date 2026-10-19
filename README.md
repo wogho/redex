@@ -1,6 +1,6 @@
 > ## ⚠️ Dangerous tool — the operator bears all responsibility
 >
-> **Redex is an autonomous offensive security framework** (a fork of ARTEX). It can scan, exploit, execute commands and move laterally **without further human confirmation**, and in `REDEX_MODE=offensive` it runs tool calls with no approval gate. Use it **only** on systems you own or are explicitly, in writing, authorized to test. Unauthorized use is a crime. The software is provided **as is, without warranty**; the authors and contributors accept **no liability** for damage, data loss or legal consequences — **all responsibility rests with the person or organization running it**. See [NOTICE.md](NOTICE.md) for the full notice.
+> **Redex is an autonomous offensive security framework** (a fork of ARTEX). It can scan, exploit, execute commands and move laterally **without further human confirmation**, and in `REDEX_MODE=offensive` it runs tool calls with no approval gate. Use it **only** on systems you own or are explicitly, in writing, authorized to test. Unauthorized use is a crime. The software is provided **as is, without warranty**; the authors and contributors accept **no liability** for damage, data loss or legal consequences — **all responsibility rests with the person or organization running it**. See [NOTICE.md](NOTICE.md) and the Terms of Use ([한국어](TERMS.ko.md) · [English](TERMS.en.md)) for the full notice and liability terms.
 >
 > 이 도구는 공격형 자동화 도구입니다. **소유하거나 서면 허가를 받은 시스템에만** 사용하십시오. 무단 사용은 범죄이며, 발생하는 모든 손해와 법적 책임은 전적으로 사용자에게 있습니다.
 
