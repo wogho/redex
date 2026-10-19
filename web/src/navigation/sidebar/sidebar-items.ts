@@ -102,8 +102,8 @@ export const sidebarItems: NavGroup[] = [
     label: "自动化",
     items: [
       { id: "llm-records", title: "LLM 录制", url: "/function/llm-records", icon: Radio },
-      { id: "schedules", title: "调度", url: "/function/schedules", icon: CalendarClock, badge: "soon" },
-      { id: "credentials", title: "凭据", url: "/function/credentials", icon: KeyRound, badge: "soon" },
+      { id: "schedules", title: "调度", url: "/function/schedules", icon: CalendarClock },
+      { id: "credentials", title: "凭据", url: "/function/credentials", icon: KeyRound },
     ],
   },
   {

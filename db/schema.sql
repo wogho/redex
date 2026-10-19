@@ -1435,3 +1435,29 @@ CREATE TABLE IF NOT EXISTS osint_face (
 );
 
 ALTER TABLE engagement_scope ADD COLUMN IF NOT EXISTS person_osint_allowed BOOLEAN NOT NULL DEFAULT false;
+
+-- 반복 실행 스케줄 (cron 대신 분 단위) + 자격증명 보관소(AES-GCM 암호문만 저장).
+CREATE TABLE IF NOT EXISTS task_schedule (
+    id BIGSERIAL PRIMARY KEY,
+    task_id TEXT NOT NULL,
+    name TEXT NOT NULL DEFAULT '',
+    goal TEXT NOT NULL DEFAULT '',
+    interval_min INT NOT NULL DEFAULT 60,
+    enabled BOOLEAN NOT NULL DEFAULT true,
+    last_run_at TIMESTAMPTZ,
+    next_run_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_task_schedule_due ON task_schedule(enabled, next_run_at);
+
+CREATE TABLE IF NOT EXISTS credential_entry (
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    kind TEXT NOT NULL DEFAULT '',
+    service TEXT NOT NULL DEFAULT '',
+    username TEXT NOT NULL DEFAULT '',
+    secret_enc TEXT NOT NULL,
+    hint TEXT NOT NULL DEFAULT '',
+    notes TEXT NOT NULL DEFAULT '',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

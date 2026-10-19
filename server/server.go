@@ -365,7 +365,8 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 	s.restoreTaskRuntimes()
 	go s.reconcileConcurrency()
 	s.startTaskArchiveWorker()
-	s.wireInterceptReviewer() // LLM 兜底审批:未命中拦截规则的命令交给模型判定
+	s.wireInterceptReviewer() // LLM 兜底审批
+	go s.scheduleLoop()       // LLM 兜底审批:未命中拦截规则的命令交给模型判定
 	return s
 }
 
@@ -774,6 +775,15 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/verification/bulk", s.verificationBulk)
 	mux.HandleFunc("POST /api/verification/merge", s.verificationMerge)
 	mux.HandleFunc("GET /api/attack/usage", s.attackUsage)
+	mux.HandleFunc("GET /api/schedules", s.schedulesList)
+	mux.HandleFunc("POST /api/schedules", s.schedulesCreate)
+	mux.HandleFunc("POST /api/schedules/{id}/toggle", s.schedulesToggle)
+	mux.HandleFunc("POST /api/schedules/{id}/run", s.schedulesRunNow)
+	mux.HandleFunc("DELETE /api/schedules/{id}", s.schedulesDelete)
+	mux.HandleFunc("GET /api/credentials", s.credentialsList)
+	mux.HandleFunc("POST /api/credentials", s.credentialsCreate)
+	mux.HandleFunc("POST /api/credentials/{id}/reveal", s.credentialsReveal)
+	mux.HandleFunc("DELETE /api/credentials/{id}", s.credentialsDelete)
 	mux.HandleFunc("GET /api/cve/map", s.cveMap)
 	mux.HandleFunc("GET /api/policy", s.policyGet)
 	mux.HandleFunc("GET /api/attack/layer", s.attackLayer)
