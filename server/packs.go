@@ -1,15 +1,11 @@
 package server
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -260,10 +256,6 @@ func (s *Server) packsSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	reg := s.loadPackRegistry()
 	if d := strings.TrimSpace(body.Dir); d != "" && d != reg.Settings.Dir {
-		if len(reg.Packs) > 0 {
-			writeErr(w, 409, "설치된 팩이 있을 때는 경로를 바꿀 수 없습니다. 먼저 삭제하세요.")
-			return
-		}
 		if err := os.MkdirAll(d, 0o755); err != nil {
 			writeErr(w, 400, "경로를 사용할 수 없습니다: "+err.Error())
 			return
@@ -275,7 +267,14 @@ func (s *Server) packsSettings(w http.ResponseWriter, r *http.Request) {
 		}
 		probe.Close()
 		_ = os.Remove(probe.Name())
-		reg.Settings.Dir = d
+		if len(reg.Packs) > 0 {
+			if err := s.migratePacks(&reg, d); err != nil {
+				writeErr(w, 500, "마이그레이션 실패: "+err.Error())
+				return
+			}
+		} else {
+			reg.Settings.Dir = d
+		}
 	}
 	if body.MaxBytes > 0 {
 		reg.Settings.MaxBytes = body.MaxBytes
@@ -303,27 +302,8 @@ func (s *Server) packInstall(w http.ResponseWriter, r *http.Request) {
 	}
 	reg := s.loadPackRegistry()
 	dir := reg.Settings.Dir
-	limit := m.Size*11/10 + 1<<20
-	if limit <= 1<<20 || limit > hardMaxDownload {
-		limit = hardMaxDownload
-	}
-	if free := freeBytes(dir); free >= 0 && free < limit {
+	if free := freeBytes(dir); free >= 0 && free < m.Size*11/10+1<<20 {
 		writeErr(w, 507, "디스크 여유 공간이 부족합니다")
-		return
-	}
-	req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, m.URL, nil)
-	if err != nil {
-		writeErr(w, 500, err.Error())
-		return
-	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		writeErr(w, 502, err.Error())
-		return
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		writeErr(w, 502, fmt.Sprintf("download status %s", resp.Status))
 		return
 	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
@@ -335,59 +315,26 @@ func (s *Server) packInstall(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 500, err.Error())
 		return
 	}
-	defer os.Remove(tmp.Name())
-	h := sha256.New()
-	n, err := io.Copy(io.MultiWriter(tmp, h), io.LimitReader(resp.Body, limit))
-	if err != nil {
-		tmp.Close()
-		writeErr(w, 502, err.Error())
-		return
-	}
+	tmpName := tmp.Name()
 	tmp.Close()
-	if n >= limit {
-		writeErr(w, 413, "다운로드 크기 상한 초과")
-		return
-	}
-	got := hex.EncodeToString(h.Sum(nil))
-	if !strings.EqualFold(got, m.SHA256) {
-		writeErr(w, 422, "checksum mismatch")
+	defer os.Remove(tmpName)
+	if err := s.downloadPack(r.Context(), m, tmpName, nil); err != nil {
+		writeErr(w, 502, err.Error())
 		return
 	}
 	dest := filepath.Join(dir, id, m.Version)
 	_ = os.RemoveAll(filepath.Join(dir, id))
-	if err := os.MkdirAll(dest, 0o755); err != nil {
-		writeErr(w, 500, err.Error())
+	if err := extractPackTar(tmpName, dest); err != nil {
+		writeErr(w, 422, err.Error())
 		return
 	}
-	list, err := exec.Command("tar", "--zstd", "-tf", tmp.Name()).Output()
-	if err != nil {
-		writeErr(w, 500, "invalid archive")
-		return
-	}
-	for _, name := range strings.Split(strings.TrimSpace(string(list)), "\n") {
-		name = strings.TrimSpace(name)
-		if name == "" {
-			continue
-		}
-		if filepath.IsAbs(name) || strings.Contains(name, "..") || strings.HasPrefix(name, "/") {
-			writeErr(w, 422, "unsafe archive path: "+name)
-			return
-		}
-	}
-	if err := exec.Command("tar", "--zstd", "-xf", tmp.Name(), "-C", dest).Run(); err != nil {
-		writeErr(w, 500, "extract failed: "+err.Error())
-		return
-	}
-	reg.Packs[id] = packState{
-		Version: m.Version, SHA256: m.SHA256, Enabled: false, Bytes: packBytes(dest),
-		InstalledAt: time.Now().UTC(), LastUsedAt: time.Now().UTC(),
-	}
+	reg.Packs[id] = packState{Version: m.Version, SHA256: m.SHA256, Bytes: packBytes(dest), InstalledAt: time.Now().UTC(), LastUsedAt: time.Now().UTC()}
 	s.evictIfNeeded(&reg)
 	if err := s.savePackRegistry(reg); err != nil {
 		writeErr(w, 500, err.Error())
 		return
 	}
-	writeJSON(w, 200, map[string]any{"ok": true, "id": id, "version": m.Version, "sha256": got, "bytes": reg.Packs[id].Bytes})
+	writeJSON(w, 200, map[string]any{"ok": true, "id": id, "version": m.Version, "bytes": reg.Packs[id].Bytes})
 }
 
 // POST /api/packs/{id}/enable|disable|pin
