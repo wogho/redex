@@ -56,6 +56,7 @@ Redex may be used **only against targets you own or for which you have explicit 
 - In the Republic of Korea, intruding into or disrupting another party's information and communications network without authorization violates the **Act on Promotion of Information and Communications Network Utilization and Information Protection** (정보통신망법).
 - Personal data collected or exposed during a penetration test is subject to the Korean **Personal Information Protection Act** (개인정보보호법). Even with authorization, handle the access, retention, and deletion of personal data with care.
 - Wherever you are, comply with your own jurisdiction's laws on network security, data protection, and computer crime.
+- Engagement scope (RoE), person-related OSINT and ATT&CK execution each require their own consent. Consent is given by the user, and the user bears responsibility for it.
 - Use this for **learning, research, and verification in locally isolated environments.** Before targeting any live external system, secure written authorization and an agreed scope and time window.
 
 Full license terms, usage restrictions, and the disclaimer are in the [License and disclaimer](#license-and-disclaimer) section below. Using this tool constitutes your agreement to those terms.
