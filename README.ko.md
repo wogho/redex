@@ -84,13 +84,18 @@ Redex는 **교전 범위(RoE)** 안에서만 동작하는 OSINT 워크벤치와,
 | PayloadsAllTheThings · fuzzdb | MIT / Apache-CC | ✓ |
 | ExploitDB (Kali 패키지) | GPL-2.0+ | ✓ |
 
-- 자산은 `wogho/redex-packs` **GitHub Releases**에만 올라가며, 설치 시 SHA256을 검증합니다.
+- 자산은 `wogho/redex-packs` **비공개 GitHub Releases**에만 올라가며, 설치 시 SHA256을 검증합니다. 설치는 `REDEX_PACK_TOKEN` 으로 인증합니다.
 - 예산(기본 20GB)과 LRU 정리, 저장 경로 변경(마이그레이션)을 지원합니다.
 
 ### 자동화
 
 - **스케줄**: 태스크 + 목표 + 간격(분)으로 반복 재실행.
 - **자격증명**: AES-GCM 암호화 보관, 목록엔 힌트만, 조회는 감사 로그.
+
+### 비공개 배포
+
+저장소와 팩 릴리스는 **비공개**입니다. 설치에는 `REDEX_PACK_TOKEN`(저장소 접근 토큰)이 필요하며,
+없으면 **로컬 설치(install-local)** 또는 **export/import** 로 반입합니다.
 
 ### 에이전트 도구
 

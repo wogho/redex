@@ -44,8 +44,9 @@ Full terms of use and liability allocation: [TERMS.ko.md](TERMS.ko.md) · [TERMS
 
 ## Source packs and licenses
 
-Packs are distributed as GitHub Release assets in `wogho/redex-packs` and are
-verified by SHA256 before extraction.
+Packs are distributed as **private** GitHub Release assets in `wogho/redex-packs`
+and are verified by SHA256 before extraction. Installs authenticate with
+`REDEX_PACK_TOKEN`; air-gapped hosts use local import.
 
 | Pack | License | Upstream |
 |---|---|---|

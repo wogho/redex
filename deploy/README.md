@@ -112,3 +112,7 @@ storage directory. Extraction requires the `zstd` binary (installed in the image
 See `docs/agent-integration.md` and the README OSINT section for the full flow.
 
 Before releasing a pack, run `scripts/pack-license-check.sh <manifest>` and follow [`docs/pack-compliance.md`](../docs/pack-compliance.md).
+
+Packs are hosted in a **private** GitHub repository. Set `REDEX_PACK_TOKEN` in `.env`
+(a token with repo read access) so installs can resolve release assets, or use the
+local install/export-import path.

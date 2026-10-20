@@ -107,3 +107,9 @@ bash scripts/pack-license-check.sh /path/to/redex-packs/manifest.json
 미국 정부 공공저작물(NVD, CISA KEV 등)은 라이선스 파일 첨부 의무가 없다. 이런 팩은
 manifest에 `"license_file_required": false` 를 두고, `license_source`·`redistribution_basis`
 로 근거를 남긴다. 그 외 팩은 LICENSE/COPYRIGHT 포함이 필수다.
+
+## 10. 비공개 배포
+
+팩 릴리스는 비공개 저장소(`wogho/redex-packs`)에만 존재한다. 설치 시 `REDEX_PACK_TOKEN`
+으로 GitHub API를 통해 자산을 받고, 해시를 검증한다. 외부 배포가 없으므로 제3자 재배포
+리스크는 줄지만, **저장소 접근 권한자**는 여전히 라이선스를 준수해야 한다.

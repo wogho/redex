@@ -237,7 +237,7 @@ flowchart LR
 | Collectors | `maigret`, `sherlock`, `holehe`, `ghunt`, `phoneinfoga`, `instaloader` | installed in the image; each run is scope-checked |
 | Face | InsightFace `buffalo_l` | index a labeled image, then search by embedding similarity |
 | Providers | 16 providers, key slots | paid/ToS providers require **consent**; keys are stored 0600 and never returned |
-| Packs | 8 packs from GitHub Releases | SHA256-pinned; large packs installed on demand, consent-gated where required |
+| Packs | 8 packs from **private** GitHub Releases | SHA256-pinned; installs use `REDEX_PACK_TOKEN`; consent-gated where required |
 | Export | GraphML (`/api/osint/graphml`) | open candidates in Maltego / yEd |
 | Gate | `verify.Analyze` | 40-char evidence floor, dedupe key, confidence |
 
@@ -273,6 +273,12 @@ ask in natural language:
 See [`docs/agent-integration.md`](docs/agent-integration.md) for the full
 verification matrix, and [`docs/pack-compliance.md`](docs/pack-compliance.md) for
 the pack review and takedown runbook.
+
+### Private distribution
+
+The repository and pack releases are **private**. Installs authenticate with
+`REDEX_PACK_TOKEN` (a GitHub token with access); without it, use the local
+install (`install-local`) or `export`/`import` for air-gapped machines.
 
 ### Limits
 
