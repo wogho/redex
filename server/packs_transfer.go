@@ -208,14 +208,22 @@ func (s *Server) downloadPack(ctx context.Context, m packManifestEntry, dst stri
 		limit = hardMaxDownload
 	}
 	var lastErr error
-	for _, u := range mirrorURLs(m) {
+	for _, raw := range mirrorURLs(m) {
 		if j != nil {
 			j.set("download", 0, m.Size)
+		}
+		u, hdrs, rerr := resolvePackDownload(raw)
+		if rerr != nil {
+			lastErr = rerr
+			continue
 		}
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 		if err != nil {
 			lastErr = err
 			continue
+		}
+		for k, v := range hdrs {
+			req.Header.Set(k, v)
 		}
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {

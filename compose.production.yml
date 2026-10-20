@@ -33,6 +33,7 @@ services:
       REDEX_LANG: ko
       REDEX_MODE: offensive
       REDEX_POLICY_FILE: /app/config/policy.json
+      REDEX_PACK_TOKEN: ${REDEX_PACK_TOKEN:-}
     command: ["-addr", ":8787", "-proxy", "127.0.0.1:8788"]
     ports:
       - "127.0.0.1:8787:8787"
