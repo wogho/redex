@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"net/http"
 	"sort"
 	"strconv"
@@ -61,23 +62,15 @@ func techniqueFor(text string) (id, tactic string, ok bool) {
 	return "", "", false
 }
 
-// GET /api/attack/usage?task_id=
-func (s *Server) attackUsage(w http.ResponseWriter, r *http.Request) {
-	var taskID int64
-	if v := strings.TrimSpace(r.URL.Query().Get("task_id")); v != "" {
-		if n, err := parseInt64(v); err == nil {
-			taskID = n
-		}
-	}
-	rows, err := s.m.pg.QueryContext(r.Context(), `
+func (s *Server) attackUsageData(ctx context.Context, taskID int64) (map[string]any, error) {
+	rows, err := s.m.pg.QueryContext(ctx, `
 SELECT id, COALESCE(name,''), COALESCE(vulnclass,''), COALESCE(severity,'')
   FROM findings
  WHERE ($1 = 0 OR task_id = $1)
  ORDER BY created_at DESC
  LIMIT 2000`, taskID)
 	if err != nil {
-		writeErr(w, 500, err.Error())
-		return
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -87,8 +80,7 @@ SELECT id, COALESCE(name,''), COALESCE(vulnclass,''), COALESCE(severity,'')
 		var id int64
 		var name, class, sev string
 		if err := rows.Scan(&id, &name, &class, &sev); err != nil {
-			writeErr(w, 500, err.Error())
-			return
+			return nil, err
 		}
 		total++
 		tid, tactic, ok := techniqueFor(name + " " + class)
@@ -110,7 +102,23 @@ SELECT id, COALESCE(name,''), COALESCE(vulnclass,''), COALESCE(severity,'')
 		out = append(out, t)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Count > out[j].Count })
-	writeJSON(w, 200, map[string]any{"techniques": out, "findings": total})
+	return map[string]any{"techniques": out, "findings": total}, nil
+}
+
+// GET /api/attack/usage?task_id=
+func (s *Server) attackUsage(w http.ResponseWriter, r *http.Request) {
+	var taskID int64
+	if v := strings.TrimSpace(r.URL.Query().Get("task_id")); v != "" {
+		if n, err := parseInt64(v); err == nil {
+			taskID = n
+		}
+	}
+	data, err := s.attackUsageData(r.Context(), taskID)
+	if err != nil {
+		writeErr(w, 500, err.Error())
+		return
+	}
+	writeJSON(w, 200, data)
 }
 
 func parseInt64(s string) (int64, error) { return strconv.ParseInt(s, 10, 64) }

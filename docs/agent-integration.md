@@ -14,12 +14,12 @@
 | **트래픽 도구** | ✅ | `Manager.HostTools()` (capture 켜짐 시) | traffic_search/get |
 | **오케스트레이션 도구** | ✅ | `orchestrationTools()` | 태스크 목록·생성·그래프·발견 조회 등, 바인딩된 에이전트만 |
 | **발견 기록(게이트)** | ✅ | `report_finding` → `verify` → `finding_verification` | 증거 40자·중복·confidence |
-| **소스 팩(파일)** | ⚠️ 부분 | Bash로 `/app/data/packs/<id>/<ver>/...` 읽기 | **설치/활성은 UI/API** — 에이전트가 켜지 못함 |
-| **OSINT 수집기** | ❌ | HTTP API만 존재, 에이전트 도구 없음 | 채팅으로 "OSINT 해줘" 불가 |
-| **프로바이더(키)** | ❌ | HTTP API만 | 동일 |
-| **자격증명 보관소** | ❌ | HTTP API만 | 보안상 의도된 미노출 |
-| **스케줄** | ❌ | 서버 ticker + HTTP API | 에이전트가 등록/조회 불가 |
-| **ATT&CK 사용 현황/CVE 매핑** | ❌ | HTTP API + 화면 | 에이전트가 조회 불가 |
+| **소스 팩(파일)** | ✅ | `packs_list` / `packs_enable` + Bash 파일 접근 | 설치·삭제는 사람만 |
+| **OSINT 수집기** | ✅ | `osint_engagements` / `osint_run` | RoE 허용 교전만 |
+| **프로바이더(키)** | ⚠️ | UI/API 전용 | 키 입력은 사람 |
+| **자격증명 보관소** | ✅ | `credential_get` (감사 로그) | 평문은 조회 시에만 |
+| **스케줄** | ✅ | `schedule_create` / `schedule_list` | 간격(분) |
+| **ATT&CK 사용 현황** | ✅ | `attack_usage` | CVE 매핑은 화면/API |
 | **교전 범위(RoE)** | ⚠️ 부분 | 태스크 scope 도구는 있음 | 별도 RoE CRUD는 UI |
 
 ## 2. 지금 "대화로" 되는 것
@@ -29,13 +29,16 @@
 - "이 취약점 보고서 써줘" → `report_finding`/보고서 도구
 - "이전 태스크랑 비교해줘" → `get_task_graph` 등
 
-## 3. 지금 "대화로" 안 되는 것 (핵심)
+## 3. 대화 예시 (연결 후)
 
-- "OSINT 돌려서 후보 찾아줘" — 에이전트에 OSINT 도구 없음
-- "자격증명 보관소에서 X 꺼내와" — 도구 없음(의도적)
-- "매 6시간마다 재점검 걸어줘" — 스케줄 도구 없음
-- "이번 교전 ATT&CK 사용 현황 보여줘" — 도구 없음
-- "팩 설치해서 쓰게 해줘" — 설치 API는 있으나 에이전트 도구 아님
+- "허용된 교전 알려줘" → `osint_engagements`
+- "교전 1에서 핸들 foo로 OSINT 돌려줘" → `osint_run`
+- "nuclei 팩 켜줘" → `packs_enable`
+- "이번 태스크 ATT&CK 사용 현황 알려줘" → `attack_usage`
+- "DC01 관리자 자격증명 꺼내줘" → `credential_get` (감사 로그)
+- "이 태스크 6시간마다 재점검 걸어줘" → `schedule_create`
+
+설치·삭제·프로바이더 키 입력은 여전히 사람이 UI에서 한다(의도적 경계).
 
 ## 4. 연결을 닫는 방법 (권장 구현)
 
