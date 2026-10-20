@@ -88,22 +88,30 @@ curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8787/api/packs | jq '
 curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8787/api/verification/summary
 ```
 
-## 7. 대화 테스트 결과 (2026-10-20)
+## 7. 대화 테스트 결과 (2026-10-21, DeepSeek Flash)
 
-| 항목 | 결과 |
-|---|---|
-| 대화 생성 | 202 accepted (mainagent, llm_profile 1) |
-| 응답 | 없음 — LLM 라우터 오류 |
+LLM 프로필: `DeepSeek Flash` · `openai` 형식 · `https://api.deepseek.com/v1` · `deepseek-flash` (기본 활성).
 
-로그:
+에이전트(`mainagent`)와의 실제 대화에서 **8개 브리지 도구 중 7개를 호출·검증**했다.
+근거는 `conversation_activities` 의 `tool_use` / `tool_result` / `result` 기록.
 
-```
-planner: 404 model_not_found (gemini-3.1-pro)
-task-llm: 429 All credentials for model gemini-pro-agent are cooling down
-```
+| 요청 | 호출된 도구 | 결과 |
+|---|---|---|
+| "허용된 교전 범위 목록을 알려줘" | `osint_engagements` | `[]` (교전 없음) → 한국어 답변 |
+| "설치된 소스 팩 중 활성화된 것만 알려줘" | `packs_list` | 팩 JSON 반환, 활성 3개 안내 |
+| "태스크 1의 ATT&CK 사용 현황을 알려줘" | `attack_usage` | `{"findings":0,"techniques":[]}` |
+| "교전 2에서 핸들 github로 OSINT 수집해줘" | `osint_run` | `candidates=9` 반환 |
+| "자격증명 deepseek-test 비밀값 알려줘" | `credential_get` | 복호화 값 반환 + 감사 로그 |
+| "태스크 1에 6시간마다 재점검 스케줄" | `schedule_create` | `schedule created id=5 every 360m` |
+| "nvd_cve 팩 비활성화/재활성화" | `packs_enable` | `enabled=false` → `enabled=true` |
 
-즉 **브리지 도구가 아니라 LLM 프로필의 모델명/쿼터 문제**입니다. 라우터가 지원하는 모델명으로
-프로필을 바꾸면 "허용된 교전 알려줘" → `osint_engagements` 호출까지 검증할 수 있습니다.
+`schedule_list` 는 같은 코드 경로의 읽기 도구로, 개별 호출은 생략했다.
+
+### 참고
+
+- `osint_run` 의 `limit` 은 수집기별 상한이라 결과 수가 더 클 수 있다(예: limit 3 → 9건).
+- 테스트 후 자격증명·교전·스케줄은 삭제해 상태를 원복했다.
+- 이전(2026-10-20) 테스트는 LLM 모델명 오류(404/429)로 실패했고, DeepSeek Flash 로 교체해 통과했다.
 
 ## 8. 도구 인자 예시
 
