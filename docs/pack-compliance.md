@@ -113,3 +113,12 @@ manifest에 `"license_file_required": false` 를 두고, `license_source`·`redi
 팩 릴리스는 비공개 저장소(`wogho/redex-packs`)에만 존재한다. 설치 시 `REDEX_PACK_TOKEN`
 으로 GitHub API를 통해 자산을 받고, 해시를 검증한다. 외부 배포가 없으므로 제3자 재배포
 리스크는 줄지만, **저장소 접근 권한자**는 여전히 라이선스를 준수해야 한다.
+
+## 11. 자동 동의(단일 운영자 서버)
+
+우리 서버는 `REDEX_PACK_AUTO_CONSENT=1`·`REDEX_PROVIDER_AUTO_CONSENT=1` 로 동의 절차를
+자동 승인한다. 이는 **운영자 본인이 서버 소유자**라는 전제이며, 동의의 당사자는 여전히
+운영자다. 외부 배포용 인스턴스에서는 이 값을 끄고 팝업 동의를 유지한다.
+
+팩의 마스터 사본은 `onedrive:redex/packs-archive/redex-packs.tar.zst` 에 보관하고,
+서버의 `data/packs` 는 실행 캐시로만 쓴다(`deploy/packs-archive.sh`·`packs-restore.sh`).

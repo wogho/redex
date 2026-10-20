@@ -116,3 +116,30 @@ Before releasing a pack, run `scripts/pack-license-check.sh <manifest>` and foll
 Packs are hosted in a **private** GitHub repository. Set `REDEX_PACK_TOKEN` in `.env`
 (a token with repo read access) so installs can resolve release assets, or use the
 local install/export-import path.
+
+## Packs storage — OneDrive archive
+
+The master copy of source packs lives **outside the server**:
+
+```
+onedrive:redex/packs-archive/redex-packs.tar.zst   # 136MB, tar.zst
+```
+
+- `data/packs` on the host is the **runtime cache** the server reads.
+- Archive: `bash deploy/packs-archive.sh` (tar.zst → rclone copy → verify).
+- Restore: `bash deploy/packs-restore.sh [dest]` (download → verify → extract).
+- Reason: 48k small files (ExploitDB) make a FUSE mount impractical; one
+  archive uploads in seconds and restores deterministically.
+
+## Auto-consent (single-operator server)
+
+Our deployment sets:
+
+```
+REDEX_PACK_AUTO_CONSENT=1
+REDEX_PROVIDER_AUTO_CONSENT=1
+```
+
+Installed packs and all 16 providers are treated as consented, so the operator
+(or an agent) can enable/run without the dialog. This is a deliberate choice for
+a single-operator server; other deployments keep the dialog.
