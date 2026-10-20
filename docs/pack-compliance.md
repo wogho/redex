@@ -102,3 +102,8 @@ bash scripts/pack-license-check.sh /path/to/redex-packs/manifest.json
 - [`NOTICE.md`](../NOTICE.md) — 무보증·책임 배제
 - [`TERMS.ko.md`](../TERMS.ko.md) §12–§15 — 배포·프로바이더·동의·면책
 - [`docs/verification-and-policy.md`](verification-and-policy.md) — 동의 게이트
+## 9. 예외 — public domain
+
+미국 정부 공공저작물(NVD, CISA KEV 등)은 라이선스 파일 첨부 의무가 없다. 이런 팩은
+manifest에 `"license_file_required": false` 를 두고, `license_source`·`redistribution_basis`
+로 근거를 남긴다. 그 외 팩은 LICENSE/COPYRIGHT 포함이 필수다.

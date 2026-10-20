@@ -69,7 +69,7 @@ def check(pack):
     # installed copy checks (optional)
     ver = str(pack.get("version", ""))
     root = os.path.join(packs_dir, pid, ver)
-    if os.path.isdir(root):
+    if os.path.isdir(root) and pack.get("license_file_required", True):
         names = {n.lower() for n in os.listdir(root)}
         has_license = any(n.startswith(("license", "copying", "copyright")) for n in names)
         if not has_license:
