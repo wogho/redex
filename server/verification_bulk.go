@@ -83,7 +83,7 @@ func (s *Server) verificationClusters(w http.ResponseWriter, r *http.Request) {
 	rows, err := s.m.pg.QueryContext(r.Context(), `
 SELECT v.dedupe_key, count(*), max(v.confidence),
        (array_agg(f.id ORDER BY v.confidence DESC))[1] AS rep,
-       (array_agg(COALESCE(f.name,''))[1]) AS rep_name
+       (array_agg(COALESCE(f.name,'')) )[1] AS rep_name
   FROM finding_verification v JOIN findings f ON f.id=v.finding_id
  GROUP BY v.dedupe_key
 HAVING count(*) > 1

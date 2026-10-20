@@ -25,32 +25,34 @@ type edbRow struct {
 }
 
 var (
-	edbOnce sync.Once
-	edbMap  map[string][]edbRow
-	edbErr  error
+	edbMu     sync.Mutex
+	edbMap    map[string][]edbRow
+	edbLoaded bool
 )
 
 var cveRE = regexp.MustCompile(`(?i)^CVE-\d{4}-\d{4,}$`)
 
 func (s *Server) loadExploitDB() (map[string][]edbRow, error) {
-	edbOnce.Do(func() {
+	edbMu.Lock()
+	defer edbMu.Unlock()
+	if edbLoaded {
+		return edbMap, nil
+	}
+	{
 		edbMap = map[string][]edbRow{}
 		path, ok := s.PackFilePath("exploitdb", "exploitdb/files_exploits.csv")
 		if !ok {
-			edbErr = os.ErrNotExist
-			return
+			return nil, os.ErrNotExist
 		}
 		f, err := os.Open(path)
 		if err != nil {
-			edbErr = err
-			return
+			return nil, err
 		}
 		defer f.Close()
 		r := csv.NewReader(f)
 		r.FieldsPerRecord = -1
 		if _, err := r.Read(); err != nil { // header
-			edbErr = err
-			return
+			return nil, err
 		}
 		for {
 			rec, err := r.Read()
@@ -67,8 +69,9 @@ func (s *Server) loadExploitDB() (map[string][]edbRow, error) {
 				}
 			}
 		}
-	})
-	return edbMap, edbErr
+	}
+	edbLoaded = true
+	return edbMap, nil
 }
 
 type nvdInfo struct {
