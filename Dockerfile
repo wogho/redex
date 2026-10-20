@@ -170,5 +170,8 @@ COPY detections/attack/redex_offense_layer.json /app/attack/redex_offense_layer.
 # data/(SQLite + jwt.key) 영속화 지점
 VOLUME ["/app/data"]
 EXPOSE 8787 8788
+# 팩 아카이브는 tar.zst — tar --zstd 가 zstd 바이너리를 요구한다.
+RUN apt-get update && apt-get install -y --no-install-recommends zstd     && rm -rf /var/lib/apt/lists/*
+
 ENTRYPOINT ["/app/start.sh"]
 CMD ["-addr", ":8787", "-proxy", ":8788"]
