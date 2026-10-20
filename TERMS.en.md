@@ -130,3 +130,11 @@ Redex can store operator-supplied API keys for third-party OSINT providers (Shod
 2. Secrets in the credential vault are encrypted, but the user remains responsible for leaks caused by their environment, backups or access control.
 3. Scheduled or agent-driven execution is configured by the user, who is responsible for keeping it within the engagement scope and applicable law.
 4. The distributor is not liable for third-party claims or damages arising from these features.
+
+## 15. Per-feature consent — RoE, OSINT, ATT&CK
+
+1. **Engagement scope (RoE).** Creating or accepting an engagement scope is the user's own representation that they hold authorization for the targets, the time window and the permitted techniques. The Distributors do not verify authorization and are not liable for targets the user was not authorized to test.
+2. **OSINT.** Enabling person-related OSINT for an engagement is a separate, per-engagement consent. The user confirms a lawful basis under applicable law (e.g. PIPA, GDPR) and remains responsible for collection, retention and deletion.
+3. **ATT&CK.** Coverage, usage and CVE mapping are informational. Deciding to execute a technique, and executing it, is the user's act. The Distributors do not warrant that any technique is lawful, complete or safe for a given target.
+4. Each consent is evidenced by the user's action (creating a scope, toggling the permission, checking the consent dialog). The operator keeps those records and bears the burden of proving them.
+5. The Distributors are not a party to these consents. The user **indemnifies** the Distributors against third-party claims, damages and costs arising from the user's use, to the maximum extent permitted by law; this does not apply to liability that mandatory law prohibits excluding.

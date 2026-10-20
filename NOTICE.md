@@ -66,3 +66,17 @@ they cannot be enabled until the operator accepts the terms in the UI.
 Secrets are stored AES-GCM-encrypted and only revealed on explicit request, which
 is audit-logged. Schedules re-run a task by adding a goal on an interval; the
 operator remains responsible for what those runs do inside the engagement scope.
+
+## Per-feature consent (RoE, OSINT, ATT&CK)
+
+Redex asks for consent at the point where responsibility shifts to the operator:
+
+| Feature | Consent act | Operator confirms |
+|---|---|---|
+| **Engagement scope (RoE)** | creating/accepting a scope | targets are authorized, window and techniques are agreed |
+| **OSINT (person data)** | enabling person OSINT per engagement | lawful basis, minimization, retention |
+| **ATT&CK execution** | running a technique / accepting coverage use | the technique is lawful and safe for that target |
+| **Packs / providers** | consent dialog + checkbox | license, terms, fees, data-use conditions |
+
+The distributor is not a party to these consents and accepts no liability for the
+operator's use. See TERMS §7, §12–§15.
