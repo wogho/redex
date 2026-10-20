@@ -8,6 +8,24 @@ The upstream ARTEX project's per-version release history (0.3.x and earlier) and
 
 ## [Unreleased]
 
+### Source packs, OSINT, agent bridges
+
+- Eight source packs on GitHub Releases (`wogho/redex-packs`) with SHA256 verification: WhatMyName, nuclei-templates, KEV/EPSS, SecLists, PayloadsAllTheThings, fuzzdb, NVD, ExploitDB.
+- Pack lifecycle is now three-state (not installed / installed-off / installed-on) with pinning, byte budget + LRU eviction, storage migration, local install, zip export/import and SSE progress.
+- Consent-gated packs/providers require a terms dialog with a checkbox before activation.
+- OSINT rebuilt into five tabs (collect, image, providers, packs, credentials) with face indexing/search, GraphML export and 16 keyed providers.
+- Added ATT&CK usage (findings → techniques) and CVE ↔ ExploitDB/NVD mapping.
+- Added task schedules (interval goal re-runs) and an AES-GCM credential vault with audit logging.
+- Chat/task agents get host tools: `osint_engagements`, `osint_run`, `packs_list`, `packs_enable`, `attack_usage`, `credential_get`, `schedule_create`, `schedule_list`.
+- Sidebar regrouped into Recon / Engage / Automation / System, plus shared loading/empty/error components.
+
+### Fixed
+
+- Added `zstd` to the image so `tar --zstd` pack extraction works.
+- Fixed the verification cluster SQL (500) and the ExploitDB `codes` column index; the loader no longer caches failures.
+- Schedules sign their loopback token with the password-derived key (fixes 401).
+
+
 ### Localization (i18n)
 
 - **Added Spanish documentation.** Translated `README.es.md` from the English README into natural Spanish and added a Spanish link to the language navigation of all five READMEs (English, Korean, Chinese, Spanish, Japanese). Code, commands, payloads, URLs and identifiers are preserved; only descriptive text is translated.

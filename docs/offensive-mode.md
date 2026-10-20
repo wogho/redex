@@ -49,3 +49,10 @@ docker exec redex-redex-1 bash -lc 'sqlmap --version; ffuf -V | head -1; nuclei 
 
 승인 게이트가 없으므로 에이전트가 실행하는 명령은 **사람 확인 없이 즉시 실행**된다.
 대상 범위를 좁게 잡고, 파괴적 명령이 섞이지 않도록 태스크 지시문에 제약을 함께 적는 것을 권한다.
+
+## 팩 · 프로바이더 · 자동 실행
+
+- **소스 팩 8종**은 GitHub Releases에서 내려받고 SHA256을 검증합니다. 공격용 데이터(PayloadsAllTheThings·fuzzdb·ExploitDB)는 **동의 팝업**을 거쳐야 활성화됩니다.
+- **프로바이더**는 유료·약관 소스에 `consent_required`가 붙고, 동의 없이 실행하면 403입니다.
+- **스케줄·자격증명**은 자동화 계층입니다. 자격증명은 AES-GCM으로 저장되고 조회는 감사 로그를 남깁니다.
+- 채팅 에이전트는 `osint_run`·`packs_enable`·`attack_usage`·`credential_get`·`schedule_create` 도구로 같은 기능을 호출합니다(설치·삭제·키 입력은 사람만).
