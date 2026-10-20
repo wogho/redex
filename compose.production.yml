@@ -21,7 +21,7 @@ services:
         max-file: "3"
 
   redex:
-    image: redex-global:ecf9d34
+    image: redex-global:465fbea
     build:
       context: .
     depends_on:
