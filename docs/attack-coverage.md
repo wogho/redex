@@ -57,3 +57,31 @@ docker exec redex-redex-1 bash -lc 'sliver-server --version; rclone version; mit
 # 오펜스 Navigator layer 생성
 python3 scripts/gen_offense_layer.py > detections/attack/redex_offense_layer.json
 ```
+
+## 사용 현황 탭 — 발견을 기법으로
+
+커버리지가 "실행 가능한 기법"이라면, **사용 현황**은 이번 교전에서 실제로 쓴 기법입니다.
+
+| 컴포넌트 | 내용 |
+|---|---|
+| 집계 | `/api/attack/usage?task_id=` · 에이전트 도구 `attack_usage` |
+| 규칙 | 발견 이름/유형 키워드 → Technique (T1190, T1078, T1110, T1003.001, T1021.002 등 25개) |
+| 표시 | 기법 · 전술 · 발견 수 · 예시 |
+
+키워드 매핑이므로 발견을 표준 용어(`SQL Injection`, `IDOR`, `kerberoast` 등)로 남겨야 카운트됩니다.
+
+## CVE ↔ ExploitDB 매핑
+
+`/function/attack` → **CVE 매핑** 탭, 또는 `GET /api/cve/map?cve=CVE-2024-24747`.
+
+- **ExploitDB** 팩과 **NVD** 팩이 설치·활성 상태여야 합니다.
+- ExploitDB CSV의 `codes` 열에서 CVE를 찾아 EDB 항목을, NVD 피드(2024–2026)에서 설명·CVSS를 반환합니다.
+- 예: `CVE-2024-24747` → EDB-51976 (MinIO 권한 상승) + NVD 설명.
+
+## 검증 결과 (2026-10-20)
+
+| 항목 | 결과 |
+|---|---|
+| 팩 설치 | nuclei 46MB · ExploitDB 177MB · NVD 87MB |
+| CVE 매핑 | `exploits=1`, `nvd=yes` |
+| 사용 현황 | 발견 1건 기준 정상 응답 |

@@ -72,3 +72,15 @@ docker logs redex-redex-1 | grep -E "\[mode\]|\[policy\]"
 ```bash
 go test ./verify ./guard ./config
 ```
+
+## 5) 일괄 처리와 클러스터 병합
+
+- **벌크 확정/기각**: 검증 큐에서 행을 선택해 한 번에 `confirmed` / `false_positive` 로 변경합니다 (`POST /api/verification/bulk`).
+- **클러스터**: 게이트의 `dedupe_key` 로 묶인 중복 그룹을 보여주고, 대표 1건만 남기고 나머지를 `duplicate` 로 처리합니다 (`GET /api/verification/clusters`, `POST /api/verification/merge`).
+- 에이전트도 같은 규칙을 따릅니다 — 대량 처리는 API/화면에서, 단건 판단은 에이전트가.
+
+## 6) 동의 게이트
+
+- 소스 팩과 프로바이더는 `consent_required` 플래그를 가집니다.
+- UI의 **동의** 버튼은 조항 팝업 + 체크박스를 거쳐야 활성화되며, 동의 없이 켜면 `403` 입니다.
+- 동의 상태는 팩(`pack_state.consent`)·프로바이더(`provider_consent.json`)에 각각 저장됩니다.

@@ -509,3 +509,11 @@ https://github.com/oritera/Cairn
 ### 免责声明
 
 本项目按“现状（AS IS）”提供，不附带任何明示或默示的担保。作者及贡献者不对使用本工具（无论使用方式是否得当）所导致的任何直接或间接损失、数据丢失、系统损坏或法律纠纷承担责任。**下载、安装或使用本项目，即表示你已阅读、理解并同意上述全部条款。**
+
+## OSINT and source packs
+
+Redex now ships an OSINT workbench (collectors, face search, 16 keyed providers,
+GraphML export), eight SHA256-pinned source packs on GitHub Releases, schedules and
+an encrypted credential vault. See the English
+[README OSINT section](README.md#osint-and-identity-pivoting) and
+[`docs/agent-integration.md`](docs/agent-integration.md) for details.

@@ -8,6 +8,25 @@
 
 ## [Unreleased]
 
+### 소스 팩 · OSINT · 에이전트 브리지
+
+- **소스 팩 8종**을 GitHub Releases(`wogho/redex-packs`)로 배포하고 SHA256 검증 후 설치합니다. WhatMyName·nuclei-templates·KEV/EPSS·SecLists·PayloadsAllTheThings·fuzzdb·NVD·ExploitDB.
+- 팩 수명주기를 **3상태**(미설치 / 설치·꺼짐 / 설치·켜짐)로 바꾸고, 고정(pin)·용량 예산·LRU 정리·경로 변경(복사→검증→교체)·로컬 설치·zip export/import·SSE 진행률을 추가했습니다.
+- 동의가 필요한 팩·프로바이더는 **조항 팝업 + 체크박스**를 거쳐야 활성화됩니다.
+- **OSINT 5탭**(수집·이미지·프로바이더·팩·자격)으로 재구성하고, 얼굴 등록/검색(InsightFace)·GraphML 내보내기·프로바이더 16종(키+동의)을 연결했습니다.
+- **ATT&CK 사용 현황**(발견→기법 집계)과 **CVE↔ExploitDB/NVD 매핑**을 추가했습니다.
+- **스케줄**(태스크 목표 반복)과 **자격증명 보관소**(AES-GCM, 감사 로그)를 추가했습니다.
+- 채팅 에이전트에 `osint_engagements`·`osint_run`·`packs_list`·`packs_enable`·`attack_usage`·`credential_get`·`schedule_create`·`schedule_list` 도구를 연결했습니다.
+- 사이드바를 4그룹(정찰·교전·자동화·시스템)으로 재배열하고 공통 로딩/빈/에러 상태 컴포넌트를 도입했습니다.
+
+### 수정
+
+- 이미지에 `zstd`를 추가해 `tar --zstd` 팩 압축 해제가 동작하도록 했습니다.
+- 검증 클러스터 SQL의 괄호 오류(500)를 수정했습니다.
+- ExploitDB `codes` 열 인덱스(7→11)를 바로잡고, 로더가 실패를 캐시하지 않도록 했습니다.
+- 스케줄 루프백 토큰을 비밀번호 파생 키로 서명하도록 수정(401 해결).
+
+
 ### 현지화 (i18n)
 
 - **스페인어 문서를 추가했습니다.** 영어 README 를 기준으로 `README.es.md` 를 자연스러운 스페인어로 옮기고, 다섯 README(영어·한국어·중국어·스페인어·일본어)의 언어 내비게이션에 스페인어 링크를 넣었습니다. 코드·명령·페이로드·URL·식별자는 원문을 보존하고 설명 텍스트만 번역했습니다.

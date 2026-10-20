@@ -56,6 +56,49 @@ ARTEX 는 **자신이 소유하거나 서면으로 명시적 허가를 받은 �
 
 ---
 
+## OSINT · 소스 팩 · 자동화
+
+Redex는 **교전 범위(RoE)** 안에서만 동작하는 OSINT 워크벤치와, GitHub CDN에서 내려받는 **소스 팩**, 그리고 반복 실행·자격증명 보관을 함께 제공합니다.
+
+### OSINT (`/function/osint`)
+
+| 탭 | 내용 |
+|---|---|
+| 수집 | 핸들·메일·연락 수단·프로필 수집 → 후보 저장(증거·신뢰도) |
+| 이미지 | InsightFace로 얼굴 등록 후 유사 얼굴 검색 |
+| 프로바이더 | 16종 키 입력 + **동의 팝업** 후 실행 (Shodan·Censys·IntelX·Epieos·Numverify·X·Naver·KIPRIS·SauceNAO 등) |
+| 팩 | 설치/켜기/끄기/고정/삭제, 로컬 설치·가져오기·내보내기, SSE 진행률 |
+| 자격 | HIBP·GHunt·instaloader 등 자격 슬롯 |
+
+- 인물 관련 수집은 교전별 **person_osint_allowed** 를 켜야 합니다.
+- 후보를 확정하면 검증 게이트(증거 40자·중복·confidence)를 통과해야 발견이 됩니다.
+- 후보는 **GraphML** 로 내보내 Maltego/yEd에서 볼 수 있습니다.
+
+### 소스 팩 (8종)
+
+| 팩 | 라이선스 | 동의 |
+|---|---|---|
+| WhatMyName · nuclei-templates · KEV/EPSS · SecLists 큐레이션 | CC-BY-SA / MIT / Public / MIT | ✗ |
+| NVD CVE 2024–2026 | Public domain | ✗ |
+| PayloadsAllTheThings · fuzzdb | MIT / Apache-CC | ✓ |
+| ExploitDB (Kali 패키지) | GPL-2.0+ | ✓ |
+
+- 자산은 `wogho/redex-packs` **GitHub Releases**에만 올라가며, 설치 시 SHA256을 검증합니다.
+- 예산(기본 20GB)과 LRU 정리, 저장 경로 변경(마이그레이션)을 지원합니다.
+
+### 자동화
+
+- **스케줄**: 태스크 + 목표 + 간격(분)으로 반복 재실행.
+- **자격증명**: AES-GCM 암호화 보관, 목록엔 힌트만, 조회는 감사 로그.
+
+### 에이전트 도구
+
+채팅/태스크 에이전트는 아래 도구로 같은 기능을 호출합니다.
+
+`osint_engagements` · `osint_run` · `packs_list` · `packs_enable` · `attack_usage` · `credential_get` · `schedule_create` · `schedule_list`
+
+설치·삭제·프로바이더 키 입력은 사람이 UI에서 합니다. 자세한 검증표는 [`docs/agent-integration.md`](docs/agent-integration.md), 영문 구성도는 [README OSINT](README.md#osint-and-identity-pivoting) 참고.
+
 ## 왜 글로벌판인가
 
 원본 ARTEX 는 프롬프트·UI·문서가 모두 중국어로 되어 있어, 중국어를 쓰지 않는 사용자가 결과를 읽고 팀과 공유하기가 번거로웠습니다. 이 글로벌판은 다음을 목표로 합니다.

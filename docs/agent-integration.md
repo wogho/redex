@@ -87,3 +87,30 @@ curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8787/api/packs | jq '
 # 게이트 결과
 curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8787/api/verification/summary
 ```
+
+## 7. 대화 테스트 결과 (2026-10-20)
+
+| 항목 | 결과 |
+|---|---|
+| 대화 생성 | 202 accepted (mainagent, llm_profile 1) |
+| 응답 | 없음 — LLM 라우터 오류 |
+
+로그:
+
+```
+planner: 404 model_not_found (gemini-3.1-pro)
+task-llm: 429 All credentials for model gemini-pro-agent are cooling down
+```
+
+즉 **브리지 도구가 아니라 LLM 프로필의 모델명/쿼터 문제**입니다. 라우터가 지원하는 모델명으로
+프로필을 바꾸면 "허용된 교전 알려줘" → `osint_engagements` 호출까지 검증할 수 있습니다.
+
+## 8. 도구 인자 예시
+
+```json
+{"engagement_id": 1, "kind": "handle", "value": "example", "limit": 10}
+{"id": "nuclei_templates", "enabled": true}
+{"cve": "CVE-2024-24747"}
+{"name": "DC01-admin"}
+{"task_id": "12", "goal": "야간 재점검", "interval_minutes": 360}
+```

@@ -98,3 +98,15 @@ Restore an image:
 rclone copy onedrive:redex/images/redex-global-<tag>.tar.zst /tmp/
 zstd -d -c /tmp/redex-global-<tag>.tar.zst | docker load
 ```
+
+## Source packs (data/packs)
+
+Packs are downloaded from GitHub Releases and extracted under `data/packs/<id>/<version>/`.
+`data/packs/state.json` holds installed/enabled/pinned flags, the byte budget and the
+storage directory. Extraction requires the `zstd` binary (installed in the image).
+
+- Default budget: 20 GiB, LRU eviction of disabled packs (pinned packs are never evicted).
+- Path changes migrate installed packs with copy → hash verify → swap.
+- Air-gap: `GET /api/packs/export` then `POST /api/packs/import` on the target.
+
+See `docs/agent-integration.md` and the README OSINT section for the full flow.

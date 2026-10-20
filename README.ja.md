@@ -410,3 +410,11 @@ flowchart TB
 - オリジナル README（中国語）: [README.zh.md](README.zh.md)
 - オリジナルのオンラインデモ（中国語 UI）: [https://artex-demo.vercel.app/](https://artex-demo.vercel.app/)（現在アクセス不可、2026-10 確認）
 - エージェント SDK: [Autumn-27/norma](https://github.com/Autumn-27/norma)（現在アクセス不可、2026-10 確認）
+
+## OSINT and source packs
+
+Redex now ships an OSINT workbench (collectors, face search, 16 keyed providers,
+GraphML export), eight SHA256-pinned source packs on GitHub Releases, schedules and
+an encrypted credential vault. See the English
+[README OSINT section](README.md#osint-and-identity-pivoting) and
+[`docs/agent-integration.md`](docs/agent-integration.md) for details.

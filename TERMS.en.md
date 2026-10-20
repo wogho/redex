@@ -123,3 +123,10 @@ participate in, or control, the purpose or manner of use.
 ## 13. Third-party providers and paid data
 
 Redex can store operator-supplied API keys for third-party OSINT providers (Shodan, Censys, IntelX, Epieos, Numverify, X API, Naver, KIPRIS and similar) and call them on the operator's behalf. Pricing, terms and data-use conditions are between the operator and the provider. Distributors do not pay for, warrant, or assume liability for provider availability, accuracy or lawfulness.
+
+## 14. Consent-gated activation, credentials, automation
+
+1. Some source packs and providers require an explicit **consent** step. Consent means the user has reviewed the applicable license, terms and law; the distributor does not warrant them.
+2. Secrets in the credential vault are encrypted, but the user remains responsible for leaks caused by their environment, backups or access control.
+3. Scheduled or agent-driven execution is configured by the user, who is responsible for keeping it within the engagement scope and applicable law.
+4. The distributor is not liable for third-party claims or damages arising from these features.

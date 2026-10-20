@@ -410,3 +410,11 @@ Este proyecto se proporciona "TAL CUAL" (AS IS), sin garantía alguna, expresa o
 - README original (chino): [README.zh.md](README.zh.md)
 - Demo en línea original (interfaz en chino): [https://artex-demo.vercel.app/](https://artex-demo.vercel.app/) (actualmente inaccesible, comprobado en 2026-10)
 - SDK de agentes: [Autumn-27/norma](https://github.com/Autumn-27/norma) (actualmente inaccesible, comprobado en 2026-10)
+
+## OSINT and source packs
+
+Redex now ships an OSINT workbench (collectors, face search, 16 keyed providers,
+GraphML export), eight SHA256-pinned source packs on GitHub Releases, schedules and
+an encrypted credential vault. See the English
+[README OSINT section](README.md#osint-and-identity-pivoting) and
+[`docs/agent-integration.md`](docs/agent-integration.md) for details.

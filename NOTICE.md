@@ -41,3 +41,28 @@ This repository contains **no credentials, API keys, private keys, database dump
 ## Terms
 
 Full terms of use and liability allocation: [TERMS.ko.md](TERMS.ko.md) · [TERMS.en.md](TERMS.en.md).
+
+## Source packs and licenses
+
+Packs are distributed as GitHub Release assets in `wogho/redex-packs` and are
+verified by SHA256 before extraction.
+
+| Pack | License | Upstream |
+|---|---|---|
+| WhatMyName | CC-BY-SA-4.0 | WebBreacher/WhatsMyName |
+| nuclei-templates | MIT | projectdiscovery/nuclei-templates |
+| CISA KEV + EPSS | Public domain | CISA / FIRST |
+| SecLists (curated) | MIT | danielmiessler/SecLists |
+| PayloadsAllTheThings | MIT | swisskyrepo/PayloadsAllTheThings |
+| fuzzdb | Apache-2.0 / CC | fuzzdb-project/fuzzdb |
+| NVD CVE 2024–2026 | Public domain | NIST NVD |
+| ExploitDB | GPL-2.0+ | Kali `exploitdb` package |
+
+Restricted packs (ExploitDB, PayloadsAllTheThings, fuzzdb) are **consent-gated**:
+they cannot be enabled until the operator accepts the terms in the UI.
+
+## Credential vault and schedules
+
+Secrets are stored AES-GCM-encrypted and only revealed on explicit request, which
+is audit-logged. Schedules re-run a task by adding a goal on an interval; the
+operator remains responsible for what those runs do inside the engagement scope.
