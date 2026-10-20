@@ -81,6 +81,8 @@ var defaultPackManifest = []packManifestEntry{
 	{ID: "fuzzdb", Version: "2026.10.1", URL: "https://github.com/wogho/redex-packs/releases/download/packs-2026.10/fuzzdb.tar.zst", SHA256: "5c0c5b3ad30a3646f980c1c3e472f18178eba6667830039be7b8e0c2332c59fa", Size: 5004124, License: "Apache/CC", Description: "fuzzdb dictionaries", Consent: true},
 }
 
+func packAutoConsent() bool { return os.Getenv("REDEX_PACK_AUTO_CONSENT") == "1" }
+
 func (s *Server) packRoot() string {
 	reg := s.loadPackRegistry()
 	if reg.Settings.Dir != "" {
@@ -108,6 +110,12 @@ func (s *Server) loadPackRegistry() packRegistry {
 	}
 	if reg.Settings.MaxBytes == 0 {
 		reg.Settings.MaxBytes = defaultMaxBytes
+	}
+	if packAutoConsent() {
+		for id, ps := range reg.Packs {
+			ps.Consent = true
+			reg.Packs[id] = ps
+		}
 	}
 	if reg.Settings.Dir == "" {
 		if v := strings.TrimSpace(os.Getenv("REDEX_PACKS_DIR")); v != "" {
@@ -359,7 +367,7 @@ func (s *Server) packToggle(enabled bool) http.HandlerFunc {
 		}
 		if enabled {
 			for _, m := range defaultPackManifest {
-				if m.ID == id && m.Consent && !ps.Consent {
+				if m.ID == id && m.Consent && !ps.Consent && !packAutoConsent() {
 					writeErr(w, 403, "이 팩은 동의가 필요합니다. /api/packs/{id}/consent 로 동의 후 활성화하세요.")
 					return
 				}

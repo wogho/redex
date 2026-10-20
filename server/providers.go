@@ -161,7 +161,7 @@ func (s *Server) providerRun(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, "input is required")
 		return
 	}
-	if def.Consent && !s.providerConsents()[id] {
+	if def.Consent && !s.providerConsents()[id] && !providerAutoConsent() {
 		writeErr(w, 403, "이 프로바이더는 동의가 필요합니다. /api/osint/providers/{id}/consent 로 동의하세요.")
 		return
 	}
@@ -410,10 +410,18 @@ func stripTags(s string) string {
 	return b.String()
 }
 
+func providerAutoConsent() bool { return os.Getenv("REDEX_PROVIDER_AUTO_CONSENT") == "1" }
+
 func (s *Server) providerConsentPath() string { return s.osintSecret("provider_consent.json") }
 
 func (s *Server) providerConsents() map[string]bool {
 	out := map[string]bool{}
+	if providerAutoConsent() {
+		for _, p := range providers {
+			out[p.ID] = true
+		}
+		return out
+	}
 	if raw, err := os.ReadFile(s.providerConsentPath()); err == nil {
 		_ = json.Unmarshal(raw, &out)
 	}
