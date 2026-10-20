@@ -271,7 +271,8 @@ ask in natural language:
 | `schedule_create` / `schedule_list` | recurring task re-runs |
 
 See [`docs/agent-integration.md`](docs/agent-integration.md) for the full
-verification matrix.
+verification matrix, and [`docs/pack-compliance.md`](docs/pack-compliance.md) for
+the pack review and takedown runbook.
 
 ### Limits
 

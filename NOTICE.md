@@ -80,3 +80,5 @@ Redex asks for consent at the point where responsibility shifts to the operator:
 
 The distributor is not a party to these consents and accepts no liability for the
 operator's use. See TERMS §7, §12–§15.
+
+Pack review, pre-release checks and the takedown runbook: [`docs/pack-compliance.md`](docs/pack-compliance.md) (script: `scripts/pack-license-check.sh`).

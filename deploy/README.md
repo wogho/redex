@@ -110,3 +110,5 @@ storage directory. Extraction requires the `zstd` binary (installed in the image
 - Air-gap: `GET /api/packs/export` then `POST /api/packs/import` on the target.
 
 See `docs/agent-integration.md` and the README OSINT section for the full flow.
+
+Before releasing a pack, run `scripts/pack-license-check.sh <manifest>` and follow [`docs/pack-compliance.md`](../docs/pack-compliance.md).
