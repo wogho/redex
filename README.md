@@ -155,6 +155,130 @@ Confidence is deterministic (evidence depth, reproduction signals, bound HTTP tr
 
 `deny` wins even in `REDEX_MODE=offensive`; a non-empty `allow` list turns policy into an allowlist; `deny_tools` blocks by tool name. Set `REDEX_REQUIRE_HUMAN=1` to force the approval gate back on in offensive mode. See [`docs/verification-and-policy.md`](docs/verification-and-policy.md). Agent integration status and usage: [`docs/agent-integration.md`](docs/agent-integration.md).
 
+## OSINT and identity pivoting
+
+Redex ships an OSINT workbench for **authorized** engagements: it collects public
+identity signals, keeps them as evidence-backed candidates, and only promotes a
+candidate to a finding after the verification gate passes. Every run is bound to
+an engagement scope (RoE) and person-related collection requires an explicit
+per-engagement flag.
+
+### Architecture
+
+```mermaid
+flowchart LR
+  subgraph UI["Web UI (/function/osint)"]
+    T1[Collect tab]
+    T2[Image tab]
+    T3[Providers tab]
+    T4[Packs tab]
+    T5[Credentials tab]
+  end
+
+  subgraph API["HTTP API"]
+    A1["POST /api/osint/run"]
+    A2["/api/osint/providers/{id}"]
+    A3["/api/osint/face/*"]
+    A4["/api/packs/*"]
+    A5["GET /api/osint/graphml"]
+  end
+
+  subgraph Gate["RoE and policy"]
+    S["engagement_scope<br/>person_osint_allowed"]
+    P["policy.json deny/allow"]
+    C["consent (packs, providers)"]
+  end
+
+  subgraph Collectors["Collectors (in image)"]
+    M[maigret / sherlock]
+    H[holehe / ghunt]
+    PH[phoneinfoga / instaloader]
+    B[built-in HTTP checks]
+  end
+
+  subgraph Face["Face pipeline"]
+    F1[InsightFace buffalo_l]
+    F2["osint_face (embeddings)"]
+  end
+
+  subgraph Providers["Keyed providers (16)"]
+    PR[Shodan/Censys/IntelX/Epieos<br/>Numverify/Naver/KIPRIS/SauceNAO/X<br/>Bing/Google Vision/TinEye/...]
+  end
+
+  subgraph Packs["Source packs (GitHub CDN)"]
+    PK[whatsmyname / nuclei / KEV-EPSS<br/>SecLists / Payloads / fuzzdb<br/>NVD / ExploitDB]
+  end
+
+  subgraph Store["Storage"]
+    CAN[(osint_candidate)]
+    FIN[(findings + finding_verification)]
+  end
+
+  T1 --> A1
+  T3 --> A2
+  T2 --> A3
+  T4 --> A4
+  A1 --> S
+  A1 --> P
+  S --> Collectors
+  Collectors --> CAN
+  A3 --> Face --> F2
+  A2 --> C --> Providers
+  A4 --> PK
+  CAN -->|confirm| FIN
+  A5 --> CAN
+```
+
+### What runs where
+
+| Layer | Component | Notes |
+|---|---|---|
+| Collectors | `maigret`, `sherlock`, `holehe`, `ghunt`, `phoneinfoga`, `instaloader` | installed in the image; each run is scope-checked |
+| Face | InsightFace `buffalo_l` | index a labeled image, then search by embedding similarity |
+| Providers | 16 providers, key slots | paid/ToS providers require **consent**; keys are stored 0600 and never returned |
+| Packs | 8 packs from GitHub Releases | SHA256-pinned; large packs installed on demand, consent-gated where required |
+| Export | GraphML (`/api/osint/graphml`) | open candidates in Maltego / yEd |
+| Gate | `verify.Analyze` | 40-char evidence floor, dedupe key, confidence |
+
+### Usage
+
+1. **Create an engagement scope** (`/function/scope`) with the authorized targets.
+2. For person-related collection, enable **person OSINT** on that scope.
+3. **Collect** (`/function/osint` → 수집): choose kind (`handle`, `email`, `contact`,
+   `profile`), enter the value, run. Candidates land in the table with source,
+   detail and confidence.
+4. **Confirm** a candidate you can substantiate — it becomes a finding and passes
+   through the verification gate (evidence, dedupe, confidence).
+5. **Providers**: store keys in the Providers tab, accept the consent dialog once,
+   then run. Redex never pays for a provider.
+6. **Packs**: install what you need (nuclei templates, NVD, ExploitDB, SecLists…),
+   enable, and export/import for air-gapped hosts.
+7. **Images**: register a labeled image, then search for similar faces.
+
+### Agent access
+
+The same operations are exposed to the chat/task agent as host tools, so you can
+ask in natural language:
+
+| Tool | Action |
+|---|---|
+| `osint_engagements` | list scopes and person-OSINT permission |
+| `osint_run` | run a collector inside an allowed scope |
+| `packs_list` / `packs_enable` | inspect packs, toggle enabled (install/delete stays human) |
+| `attack_usage` | ATT&CK technique counts for the engagement |
+| `credential_get` | reveal a vault secret (audited) |
+| `schedule_create` / `schedule_list` | recurring task re-runs |
+
+See [`docs/agent-integration.md`](docs/agent-integration.md) for the full
+verification matrix.
+
+### Limits
+
+- Public data only; no breach dumps or leaked credentials are bundled.
+- Provider results depend on your own keys/quotas.
+- ATT&CK usage is a keyword heuristic over recorded findings, not an exploit oracle.
+- GeoLite2 and similar non-redistributable datasets are not shipped as packs.
+
 ## Why a global edition
 
 Upstream Redex has its prompts, UI, and documentation entirely in Chinese, which made it cumbersome for anyone who does not read Chinese to read the results and share them with a team. This edition aims to:
