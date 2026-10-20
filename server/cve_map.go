@@ -59,10 +59,10 @@ func (s *Server) loadExploitDB() (map[string][]edbRow, error) {
 			if err == io.EOF {
 				break
 			}
-			if err != nil || len(rec) < 8 {
+			if err != nil || len(rec) < 12 {
 				continue
 			}
-			row := edbRow{ID: rec[0], File: rec[1], Description: rec[2], Date: rec[3], Type: rec[5], Platform: rec[6], Codes: rec[7]}
+			row := edbRow{ID: rec[0], File: rec[1], Description: rec[2], Date: rec[3], Type: rec[5], Platform: rec[6], Codes: rec[11]}
 			for _, part := range strings.FieldsFunc(row.Codes, func(r rune) bool { return r == ';' || r == ',' || r == ' ' }) {
 				if strings.HasPrefix(strings.ToUpper(part), "CVE-") {
 					edbMap[strings.ToUpper(part)] = append(edbMap[strings.ToUpper(part)], row)

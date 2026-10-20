@@ -138,7 +138,11 @@ SELECT id, task_id, name, goal, interval_min, enabled, COALESCE(last_run_at,'epo
 	if err != nil {
 		return fmt.Errorf("schedule not found")
 	}
-	token, err := signJWT(s.jwtKey)
+	hash, err := s.readPassHash()
+	if err != nil {
+		return err
+	}
+	token, err := signJWT(s.signingKey(hash))
 	if err != nil {
 		return err
 	}
